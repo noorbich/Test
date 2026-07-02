@@ -2,824 +2,1107 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Geometry Rush</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BEYOND THE STARS</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/space+grotesk@latest/latin-400-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/space+grotesk@latest/latin-700-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-300-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-400-normal.css">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body {
-    width: 100%; height: 100%; overflow: hidden;
-    background: #0a0a1a;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    touch-action: none;
-    user-select: none;
-    -webkit-user-select: none;
-    overscroll-behavior: none;
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:auto;overflow-x:hidden}
+body{
+  background:#000;
+  color:#e0e0e0;
+  font-family:'Inter',sans-serif;
+  font-weight:300;
+  overflow-x:hidden;
+  cursor:crosshair;
+}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:#000}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:2px}
+
+#starfield{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  z-index:0;
+  pointer-events:none;
+}
+
+.parallax-container{
+  position:relative;
+  z-index:1;
+}
+
+.section{
+  position:relative;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+/* ===== HERO ===== */
+.hero{
+  min-height:150vh;
+  flex-direction:column;
+  justify-content:flex-start;
+  padding-top:30vh;
+}
+.hero-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700;
+  font-size:clamp(3rem,10vw,10rem);
+  letter-spacing:0.15em;
+  text-align:center;
+  color:#fff;
+  text-shadow:0 0 80px rgba(180,200,255,0.3),0 0 200px rgba(100,150,255,0.1);
+  line-height:1.1;
+  opacity:0;
+  transform:translateY(40px) scale(0.95);
+  animation:heroIn 3s ease-out 0.5s forwards;
+}
+.hero-sub{
+  font-size:clamp(0.9rem,2vw,1.4rem);
+  letter-spacing:0.5em;
+  text-transform:uppercase;
+  color:rgba(180,200,255,0.5);
+  margin-top:2rem;
+  opacity:0;
+  animation:fadeUp 2s ease-out 2s forwards;
+}
+.scroll-indicator{
+  position:absolute;
+  bottom:10vh;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+  opacity:0;
+  animation:fadeUp 2s ease-out 3s forwards;
+}
+.scroll-indicator span{
+  font-size:0.7rem;
+  letter-spacing:0.4em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.3);
+}
+.scroll-line{
+  width:1px;
+  height:60px;
+  background:linear-gradient(to bottom,rgba(255,255,255,0.4),transparent);
+  animation:scrollPulse 2s ease-in-out infinite;
+}
+
+@keyframes heroIn{
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes fadeUp{
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes scrollPulse{
+  0%,100%{opacity:0.3;transform:scaleY(1)}
+  50%{opacity:0.8;transform:scaleY(1.2)}
+}
+
+/* ===== QUOTE SECTIONS ===== */
+.quote-section{
+  min-height:100vh;
+  flex-direction:column;
+  padding:0 10%;
+}
+.quote-text{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(1.5rem,4vw,3.5rem);
+  font-weight:400;
+  line-height:1.6;
+  text-align:center;
+  color:rgba(255,255,255,0.85);
+  max-width:900px;
+  opacity:0;
+  transform:translateY(60px);
+  transition:all 1.5s cubic-bezier(0.16,1,0.3,1);
+}
+.quote-text.visible{
+  opacity:1;
+  transform:translateY(0);
+}
+.quote-attr{
+  margin-top:2rem;
+  font-size:0.85rem;
+  letter-spacing:0.3em;
+  text-transform:uppercase;
+  color:rgba(180,200,255,0.4);
+  opacity:0;
+  transform:translateY(30px);
+  transition:all 1.5s cubic-bezier(0.16,1,0.3,1) 0.3s;
+}
+.quote-attr.visible{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* ===== WORMHOLE SECTION ===== */
+.wormhole-section{
+  min-height:200vh;
+  position:relative;
+}
+.wormhole-canvas{
+  position:sticky;
+  top:0;
+  width:100%;
+  height:100vh;
+  z-index:1;
+}
+.wormhole-text{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  z-index:2;
+  text-align:center;
+  pointer-events:none;
+}
+.wormhole-text h2{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(2rem,6vw,5rem);
+  font-weight:700;
+  letter-spacing:0.2em;
+  color:#fff;
+  text-shadow:0 0 60px rgba(100,180,255,0.5);
+  opacity:0;
+  transition:opacity 1s;
+}
+.wormhole-text p{
+  margin-top:1.5rem;
+  font-size:clamp(0.9rem,1.8vw,1.2rem);
+  color:rgba(180,210,255,0.6);
+  letter-spacing:0.15em;
+  max-width:500px;
+  margin-left:auto;
+  margin-right:auto;
+  line-height:1.8;
+  opacity:0;
+  transition:opacity 1s 0.3s;
+}
+
+/* ===== PLANET SECTION ===== */
+.planet-section{
+  min-height:150vh;
+  position:relative;
+}
+.planet-wrapper{
+  position:sticky;
+  top:0;
+  width:100%;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+.planet-img{
+  width:clamp(300px,50vw,700px);
+  height:clamp(300px,50vw,700px);
+  border-radius:50%;
+  object-fit:cover;
+  box-shadow:
+    0 0 100px rgba(200,150,80,0.2),
+    0 0 200px rgba(200,150,80,0.1),
+    inset -30px -30px 80px rgba(0,0,0,0.8);
+  opacity:0;
+  transform:scale(0.8);
+  transition:all 2s cubic-bezier(0.16,1,0.3,1);
+}
+.planet-img.visible{
+  opacity:1;
+  transform:scale(1);
+}
+.planet-ring{
+  position:absolute;
+  width:clamp(500px,80vw,1100px);
+  height:clamp(120px,15vw,200px);
+  border:2px solid rgba(200,180,140,0.2);
+  border-radius:50%;
+  transform:rotateX(75deg) rotateZ(-15deg);
+  box-shadow:0 0 30px rgba(200,180,140,0.1);
+  opacity:0;
+  transition:opacity 2s 0.5s;
+}
+.planet-ring.visible{opacity:1}
+.planet-ring::before{
+  content:'';
+  position:absolute;
+  inset:-15px;
+  border:1px solid rgba(200,180,140,0.1);
+  border-radius:50%;
+}
+.planet-info{
+  position:absolute;
+  right:8%;
+  top:50%;
+  transform:translateY(-50%);
+  max-width:350px;
+  text-align:right;
+}
+.planet-info h3{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(1.5rem,3vw,2.5rem);
+  font-weight:700;
+  letter-spacing:0.1em;
+  color:#fff;
+  margin-bottom:1rem;
+}
+.planet-info p{
+  font-size:0.9rem;
+  line-height:1.8;
+  color:rgba(200,200,220,0.6);
+  letter-spacing:0.05em;
+}
+.planet-label{
+  position:absolute;
+  left:8%;
+  bottom:15%;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(4rem,12vw,12rem);
+  font-weight:700;
+  letter-spacing:0.1em;
+  color:rgba(255,255,255,0.03);
+  pointer-events:none;
+  white-space:nowrap;
+}
+
+/* ===== BLACK HOLE SECTION ===== */
+.blackhole-section{
+  min-height:200vh;
+  position:relative;
+}
+.blackhole-wrapper{
+  position:sticky;
+  top:0;
+  width:100%;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.blackhole-canvas{
+  width:100%;
+  height:100%;
+  position:absolute;
+  top:0;left:0;
+}
+.blackhole-text{
+  position:relative;
+  z-index:2;
+  text-align:center;
+  pointer-events:none;
+}
+.blackhole-text h2{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(2.5rem,7vw,7rem);
+  font-weight:700;
+  letter-spacing:0.3em;
+  color:#fff;
+  text-shadow:0 0 100px rgba(255,180,80,0.3);
+  opacity:0;
+  transition:opacity 1.5s;
+}
+.blackhole-text .bh-sub{
+  margin-top:1rem;
+  font-size:clamp(0.8rem,1.5vw,1.1rem);
+  letter-spacing:0.4em;
+  text-transform:uppercase;
+  color:rgba(255,200,150,0.4);
+  opacity:0;
+  transition:opacity 1.5s 0.5s;
+}
+
+/* ===== TESSERACT SECTION ===== */
+.tesseract-section{
+  min-height:150vh;
+  position:relative;
+  overflow:hidden;
+}
+.tesseract-wrapper{
+  position:sticky;
+  top:0;
+  width:100%;
+  height:100vh;
+  perspective:1000px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.tesseract-grid{
+  position:absolute;
+  width:200%;
+  height:200%;
+  top:-50%;left:-50%;
+  opacity:0;
+  transition:opacity 2s;
+}
+.tesseract-grid.visible{opacity:1}
+.grid-line-h,.grid-line-v{
+  position:absolute;
+  background:rgba(100,180,255,0.08);
+}
+.grid-line-h{
+  width:100%;
+  height:1px;
+  left:0;
+}
+.grid-line-v{
+  width:1px;
+  height:100%;
+  top:0;
+}
+.tesseract-content{
+  position:relative;
+  z-index:2;
+  text-align:center;
+  max-width:700px;
+  padding:0 2rem;
+}
+.tesseract-content h2{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(2rem,5vw,4rem);
+  font-weight:700;
+  letter-spacing:0.15em;
+  color:#fff;
+  margin-bottom:2rem;
+  text-shadow:0 0 60px rgba(100,180,255,0.3);
+}
+.tesseract-content p{
+  font-size:clamp(0.9rem,1.5vw,1.1rem);
+  line-height:2;
+  color:rgba(180,200,230,0.6);
+  letter-spacing:0.05em;
+}
+.tesseract-lines{
+  position:absolute;
+  width:100%;
+  height:100%;
+  top:0;left:0;
+  pointer-events:none;
+  z-index:1;
+}
+.tesseract-lines .tline{
+  position:absolute;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(100,180,255,0.15),transparent);
+  animation:tlineMove 8s linear infinite;
+}
+@keyframes tlineMove{
+  0%{transform:translateX(-100%)}
+  100%{transform:translateX(100%)}
+}
+
+/* ===== FINALE ===== */
+.finale-section{
+  min-height:100vh;
+  flex-direction:column;
+  padding:0 10%;
+}
+.finale-text{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(1.8rem,5vw,4rem);
+  font-weight:700;
+  text-align:center;
+  color:#fff;
+  letter-spacing:0.1em;
+  line-height:1.5;
+  opacity:0;
+  transform:translateY(40px);
+  transition:all 2s cubic-bezier(0.16,1,0.3,1);
+}
+.finale-text.visible{
+  opacity:1;
+  transform:translateY(0);
+}
+.finale-sub{
+  margin-top:3rem;
+  font-size:clamp(0.8rem,1.5vw,1rem);
+  letter-spacing:0.5em;
+  text-transform:uppercase;
+  color:rgba(180,200,255,0.3);
+  opacity:0;
+  transition:opacity 2s 0.5s;
+}
+.finale-sub.visible{opacity:1}
+
+/* ===== DUST PARTICLES ===== */
+.dust-layer{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  z-index:2;
+  pointer-events:none;
+}
+
+/* ===== HORIZONTAL DIVIDER ===== */
+.divider{
+  width:100%;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);
+  margin:0 auto;
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .planet-info{
+    position:relative;
+    right:auto;top:auto;
+    transform:none;
+    text-align:center;
+    margin-top:2rem;
+    padding:0 2rem;
   }
-  #game {
-    display: block;
-    width: 100vw;
-    height: 100vh;
-    touch-action: none;
+  .planet-wrapper{
+    flex-direction:column;
   }
-  #ui {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-    z-index: 10;
-  }
-  .overlay {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    pointer-events: auto;
-    background: radial-gradient(ellipse at center, rgba(20, 10, 50, 0.7), rgba(5, 0, 20, 0.95));
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-  }
-  .hidden { display: none !important; }
-  .title {
-    font-size: clamp(48px, 10vw, 96px);
-    font-weight: 900;
-    letter-spacing: 4px;
-    background: linear-gradient(90deg, #00f0ff, #ff00e6, #ffea00);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    text-shadow: 0 0 40px rgba(0, 240, 255, 0.5);
-    margin-bottom: 20px;
-    animation: pulse 2s ease-in-out infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); filter: brightness(1); }
-    50% { transform: scale(1.03); filter: brightness(1.2); }
-  }
-  .subtitle {
-    color: #a0a0d0;
-    font-size: clamp(14px, 3vw, 20px);
-    margin-bottom: 40px;
-    letter-spacing: 2px;
-    text-align: center;
-    padding: 0 20px;
-  }
-  .btn {
-    background: linear-gradient(135deg, #00f0ff, #0080ff);
-    color: #fff;
-    border: none;
-    padding: 18px 60px;
-    font-size: clamp(18px, 4vw, 24px);
-    font-weight: 700;
-    letter-spacing: 3px;
-    border-radius: 50px;
-    cursor: pointer;
-    box-shadow: 0 0 30px rgba(0, 240, 255, 0.5), inset 0 2px 0 rgba(255,255,255,0.3);
-    transition: transform 0.15s, box-shadow 0.15s;
-    margin: 10px;
-    text-transform: uppercase;
-  }
-  .btn:active {
-    transform: scale(0.95);
-    box-shadow: 0 0 15px rgba(0, 240, 255, 0.7);
-  }
-  .stats {
-    color: #fff;
-    font-size: clamp(16px, 3.5vw, 22px);
-    margin: 15px 0;
-    text-align: center;
-    letter-spacing: 1px;
-  }
-  .stats span { color: #ffea00; font-weight: 700; }
-  .death-title {
-    font-size: clamp(40px, 8vw, 72px);
-    font-weight: 900;
-    color: #ff3366;
-    text-shadow: 0 0 30px rgba(255, 51, 102, 0.7);
-    margin-bottom: 10px;
-    letter-spacing: 4px;
-  }
-  #hud {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 5;
-    pointer-events: none;
-    font-weight: 700;
-    color: #fff;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
-  }
-  .hud-item {
-    background: rgba(0, 0, 0, 0.4);
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: clamp(12px, 2.5vw, 16px);
-    letter-spacing: 1px;
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-  #progressBar {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 4px;
-    background: rgba(255,255,255,0.1);
-    z-index: 6;
-  }
-  #progressFill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #00f0ff, #ff00e6);
-    box-shadow: 0 0 10px #00f0ff;
-    transition: width 0.1s linear;
-  }
-  .hint {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: rgba(255,255,255,0.5);
-    font-size: 14px;
-    letter-spacing: 2px;
-    pointer-events: none;
-    animation: blink 1.5s ease-in-out infinite;
-  }
-  @keyframes blink {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.8; }
-  }
+  .planet-label{display:none}
+}
+
+/* ===== NEBULA OVERLAY ===== */
+.nebula-overlay{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  z-index:0;
+  pointer-events:none;
+  opacity:0.4;
+  background:
+    radial-gradient(ellipse at 20% 50%,rgba(40,20,80,0.4) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 20%,rgba(20,40,80,0.3) 0%,transparent 50%),
+    radial-gradient(ellipse at 60% 80%,rgba(60,20,40,0.2) 0%,transparent 50%);
+}
+
+/* ===== PROGRESS BAR ===== */
+.progress-bar{
+  position:fixed;
+  top:0;left:0;
+  width:0%;
+  height:2px;
+  background:linear-gradient(90deg,rgba(100,180,255,0.8),rgba(255,200,100,0.8));
+  z-index:100;
+  transition:width 0.1s linear;
+  box-shadow:0 0 10px rgba(100,180,255,0.5);
+}
+
+/* ===== NAV DOTS ===== */
+.nav-dots{
+  position:fixed;
+  right:20px;
+  top:50%;
+  transform:translateY(-50%);
+  z-index:50;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.nav-dot{
+  width:6px;height:6px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.2);
+  cursor:pointer;
+  transition:all 0.3s;
+}
+.nav-dot.active{
+  background:rgba(255,255,255,0.8);
+  box-shadow:0 0 10px rgba(255,255,255,0.3);
+  transform:scale(1.5);
+}
+@media(max-width:768px){
+  .nav-dots{right:10px;gap:8px}
+  .nav-dot{width:4px;height:4px}
+}
 </style>
 </head>
 <body>
-<canvas id="game"></canvas>
-<div id="progressBar"><div id="progressFill"></div></div>
-<div id="hud" class="hidden">
-  <div class="hud-item">ATTEMPT <span id="attemptNum">1</span></div>
-  <div class="hud-item"><span id="percentNum">0</span>%</div>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<canvas id="starfield"></canvas>
+<div class="nebula-overlay" id="nebulaOverlay"></div>
+<canvas class="dust-layer" id="dustCanvas"></canvas>
+
+<div class="nav-dots" id="navDots"></div>
+
+<div class="parallax-container" id="parallaxContainer">
+
+  <!-- HERO -->
+  <section class="section hero" data-section="0">
+    <h1 class="hero-title" id="heroTitle">BEYOND<br>THE STARS</h1>
+    <p class="hero-sub">A JOURNEY THROUGH THE COSMOS</p>
+    <div class="scroll-indicator">
+      <span>Scroll to explore</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- QUOTE 1 -->
+  <section class="section quote-section" data-section="1">
+    <p class="quote-text" data-reveal>"We used to look up at the sky and wonder<br>our place in the stars."</p>
+    <p class="quote-attr" data-reveal>— COOPER</p>
+  </section>
+
+  <!-- WORMHOLE -->
+  <section class="section wormhole-section" data-section="2">
+    <canvas class="wormhole-canvas" id="wormholeCanvas"></canvas>
+    <div class="wormhole-text">
+      <h2 id="wormholeTitle">THE PASSAGE</h2>
+      <p id="wormholeSub">A fold in the fabric of spacetime — a gateway to another galaxy, another hope for humanity.</p>
+    </div>
+  </section>
+
+  <!-- QUOTE 2 -->
+  <section class="section quote-section" data-section="3">
+    <p class="quote-text" data-reveal>"Mankind was born on Earth.<br>It was never meant to die here."</p>
+    <p class="quote-attr" data-reveal>— COOPER</p>
+  </section>
+
+  <!-- PLANET -->
+  <section class="section planet-section" data-section="4">
+    <div class="planet-wrapper">
+      <img class="planet-img" id="planetImg" data-reveal src="" alt="Planet">
+      <div class="planet-ring" id="planetRing" data-reveal></div>
+      <div class="planet-info">
+        <h3>MILLER'S WORLD</h3>
+        <p>A water world orbiting close to Gargantua. Here, one hour equals seven years on Earth. Time itself bends under the weight of gravity.</p>
+      </div>
+      <div class="planet-label">HORIZON</div>
+    </div>
+  </section>
+
+  <!-- BLACK HOLE -->
+  <section class="section blackhole-section" data-section="5">
+    <div class="blackhole-wrapper">
+      <canvas class="blackhole-canvas" id="blackholeCanvas"></canvas>
+      <div class="blackhole-text">
+        <h2 id="bhTitle">GARGANTUA</h2>
+        <p class="bh-sub" id="bhSub">THE SINGULARITY</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUOTE 3 -->
+  <section class="section quote-section" data-section="6">
+    <p class="quote-text" data-reveal>"We are the answer<br>to the question<br>the universe has been asking<br>all along."</p>
+    <p class="quote-attr" data-reveal>— DR. BRAND</p>
+  </section>
+
+  <!-- TESSERACT -->
+  <section class="section tesseract-section" data-section="7">
+    <div class="tesseract-wrapper">
+      <div class="tesseract-grid" id="tesseractGrid" data-reveal></div>
+      <div class="tesseract-lines" id="tesseractLines"></div>
+      <div class="tesseract-content">
+        <h2>THE TESSERACT</h2>
+        <p>Within the singularity, time becomes a physical dimension. Past, present, and future exist simultaneously — an infinite library of moments stretching in every direction.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINALE -->
+  <section class="section finale-section" data-section="8">
+    <p class="finale-text" data-reveal>DO NOT GO GENTLE<br>INTO THAT GOOD NIGHT</p>
+    <p class="finale-sub" data-reveal>RAGE, RAGE AGAINST THE DYING OF THE LIGHT</p>
+  </section>
+
 </div>
-<div id="ui">
-  <div id="menu" class="overlay">
-    <div class="title">GEOMETRY RUSH</div>
-    <div class="subtitle">TAP ANYWHERE TO JUMP • AVOID THE SPIKES</div>
-    <button class="btn" id="playBtn">PLAY</button>
-    <div class="subtitle" style="margin-top:30px; font-size:12px; opacity:0.6;">BEST: <span id="bestScore">0</span>%</div>
-  </div>
-  <div id="death" class="overlay hidden">
-    <div class="death-title">CRASHED!</div>
-    <div class="stats">PROGRESS: <span id="deathPercent">0</span>%</div>
-    <div class="stats">ATTEMPT: <span id="deathAttempt">1</span></div>
-    <button class="btn" id="retryBtn">RETRY</button>
-    <button class="btn" id="menuBtn" style="background: linear-gradient(135deg, #ff00e6, #8000ff);">MENU</button>
-  </div>
-</div>
-<div id="hint" class="hint hidden">TAP TO JUMP</div>
 
 <script>
-(() => {
-  const canvas = document.getElementById('game');
-  const ctx = canvas.getContext('2d');
-  const menu = document.getElementById('menu');
-  const death = document.getElementById('death');
-  const hud = document.getElementById('hud');
-  const hint = document.getElementById('hint');
-  const playBtn = document.getElementById('playBtn');
-  const retryBtn = document.getElementById('retryBtn');
-  const menuBtn = document.getElementById('menuBtn');
-  const attemptNum = document.getElementById('attemptNum');
-  const percentNum = document.getElementById('percentNum');
-  const deathPercent = document.getElementById('deathPercent');
-  const deathAttempt = document.getElementById('deathAttempt');
-  const progressFill = document.getElementById('progressFill');
-  const bestScoreEl = document.getElementById('bestScore');
+// ===== STARFIELD =====
+const starCanvas = document.getElementById('starfield');
+const starCtx = starCanvas.getContext('2d');
+let stars = [];
+const STAR_LAYERS = 4;
+const STAR_COUNTS = [200, 150, 80, 30];
+const STAR_SPEEDS = [0.02, 0.05, 0.1, 0.2];
+const STAR_SIZES = [0.5, 1, 1.5, 2.5];
 
-  let W = 0, H = 0, DPR = 1;
-  function resize() {
-    DPR = Math.min(window.devicePixelRatio || 1, 2);
-    W = window.innerWidth;
-    H = window.innerHeight;
-    canvas.width = W * DPR;
-    canvas.height = H * DPR;
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  }
-  window.addEventListener('resize', resize);
-  resize();
-
-  // Game constants
-  const GROUND_HEIGHT_RATIO = 0.2;
-  const PLAYER_SIZE = 44;
-  const GRAVITY = 0.9;
-  const JUMP_VEL = -15.5;
-  const GAME_SPEED_BASE = 7.5;
-  let gameSpeed = GAME_SPEED_BASE;
-
-  // State
-  let state = 'menu'; // menu, playing, dead
-  let attempt = 1;
-  let bestPercent = parseInt(localStorage.getItem('gr_best') || '0');
-  bestScoreEl.textContent = bestPercent;
-
-  // Player
-  const player = {
-    x: 0, y: 0, vy: 0,
-    size: PLAYER_SIZE,
-    rotation: 0,
-    onGround: false,
-    dead: false,
-    trail: []
-  };
-
-  // Level design - hand crafted for rhythm
-  // Types: 'spike', 'block', 'spike_up' (spike on top of block), 'platform', 'gap'
-  // Each obstacle has x position (in world units)
-  const UNIT = 50; // world unit size
-  const level = [];
-  let levelLength = 0;
-
-  function buildLevel() {
-    level.length = 0;
-    let x = 600;
-    const add = (type, count = 1, spacing = 1) => {
-      for (let i = 0; i < count; i++) {
-        level.push({ type, x: x + i * UNIT * spacing });
-      }
-      x += count * UNIT * spacing;
-    };
-    const gap = (units = 1) => { x += UNIT * units; };
-
-    // Intro - easy spikes
-    add('spike'); gap(3);
-    add('spike'); gap(3);
-    add('spike'); gap(4);
-    // Double spike
-    add('spike', 2, 1); gap(3);
-    add('spike'); gap(3);
-    // Block with spike on top
-    add('block'); level.push({ type: 'spike_on_block', x: x - UNIT }); gap(3);
-    add('spike'); gap(3);
-    // Triple spike
-    add('spike', 3, 1); gap(4);
-    // Platform jump
-    add('platform'); gap(3);
-    add('spike'); gap(3);
-    add('platform'); gap(3);
-    add('spike', 2, 1); gap(4);
-    // Staircase
-    add('block'); gap(1);
-    level.push({ type: 'block', x: x, y: -UNIT }); x += UNIT;
-    level.push({ type: 'block', x: x, y: -UNIT*2 }); x += UNIT;
-    gap(2);
-    add('spike'); gap(3);
-    add('spike', 2, 1); gap(3);
-    add('spike'); gap(3);
-    // Block tower with spike
-    add('block'); level.push({ type: 'block', x: x - UNIT, y: -UNIT });
-    level.push({ type: 'spike_on_block', x: x - UNIT, y: -UNIT });
-    gap(3);
-    add('spike', 3, 1); gap(4);
-    // Platform sequence
-    add('platform'); gap(2);
-    add('spike'); gap(2);
-    add('platform'); gap(2);
-    add('spike', 2, 1); gap(4);
-    // Final challenge
-    add('spike'); gap(2);
-    add('block'); level.push({ type: 'spike_on_block', x: x - UNIT }); gap(2);
-    add('spike'); gap(2);
-    add('spike', 2, 1); gap(3);
-    add('spike'); gap(2);
-    add('spike', 3, 1); gap(4);
-    add('spike'); gap(3);
-    add('spike'); gap(3);
-    add('spike', 2, 1); gap(5);
-
-    levelLength = x + 400;
-  }
-  buildLevel();
-
-  // Particles
-  const particles = [];
-  function spawnParticles(x, y, color, count = 20, spread = 8) {
-    for (let i = 0; i < count; i++) {
-      particles.push({
-        x, y,
-        vx: (Math.random() - 0.5) * spread,
-        vy: (Math.random() - 0.5) * spread - 2,
-        life: 1,
-        decay: 0.015 + Math.random() * 0.02,
-        size: 3 + Math.random() * 5,
-        color
+function initStars() {
+  starCanvas.width = window.innerWidth;
+  starCanvas.height = window.innerHeight;
+  stars = [];
+  for (let layer = 0; layer < STAR_LAYERS; layer++) {
+    for (let i = 0; i < STAR_COUNTS[layer]; i++) {
+      stars.push({
+        x: Math.random() * starCanvas.width,
+        y: Math.random() * starCanvas.height,
+        size: STAR_SIZES[layer] * (0.5 + Math.random() * 0.5),
+        layer,
+        twinkle: Math.random() * Math.PI * 2,
+        twinkleSpeed: 0.01 + Math.random() * 0.03,
+        baseAlpha: 0.3 + Math.random() * 0.7,
+        color: Math.random() > 0.85 ? 
+          `hsl(${200 + Math.random() * 40}, 60%, 80%)` : 
+          Math.random() > 0.9 ? 
+          `hsl(${30 + Math.random() * 20}, 50%, 85%)` : 
+          '#fff'
       });
     }
   }
-  function updateParticles() {
-    for (let i = particles.length - 1; i >= 0; i--) {
-      const p = particles[i];
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vy += 0.3;
-      p.life -= p.decay;
-      if (p.life <= 0) particles.splice(i, 1);
+}
+
+let scrollY = 0;
+let targetScrollY = 0;
+
+function drawStars() {
+  starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+  for (const star of stars) {
+    star.twinkle += star.twinkleSpeed;
+    const alpha = star.baseAlpha * (0.5 + 0.5 * Math.sin(star.twinkle));
+    const parallaxOffset = scrollY * STAR_SPEEDS[star.layer];
+    let y = (star.y + parallaxOffset) % starCanvas.height;
+    if (y < 0) y += starCanvas.height;
+    
+    starCtx.beginPath();
+    starCtx.arc(star.x, y, star.size, 0, Math.PI * 2);
+    starCtx.fillStyle = star.color;
+    starCtx.globalAlpha = alpha;
+    starCtx.fill();
+    
+    if (star.size > 1.5) {
+      starCtx.beginPath();
+      starCtx.arc(star.x, y, star.size * 3, 0, Math.PI * 2);
+      starCtx.fillStyle = star.color;
+      starCtx.globalAlpha = alpha * 0.1;
+      starCtx.fill();
     }
   }
-  function drawParticles() {
-    for (const p of particles) {
-      ctx.globalAlpha = Math.max(0, p.life);
-      ctx.fillStyle = p.color;
-      ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
-    }
-    ctx.globalAlpha = 1;
+  starCtx.globalAlpha = 1;
+}
+
+// ===== DUST PARTICLES =====
+const dustCanvas = document.getElementById('dustCanvas');
+const dustCtx = dustCanvas.getContext('2d');
+let dustParticles = [];
+
+function initDust() {
+  dustCanvas.width = window.innerWidth;
+  dustCanvas.height = window.innerHeight;
+  dustParticles = [];
+  for (let i = 0; i < 60; i++) {
+    dustParticles.push({
+      x: Math.random() * dustCanvas.width,
+      y: Math.random() * dustCanvas.height,
+      size: 0.5 + Math.random() * 2,
+      speedX: (Math.random() - 0.5) * 0.3,
+      speedY: -0.1 - Math.random() * 0.3,
+      alpha: 0.1 + Math.random() * 0.2,
+      parallaxFactor: 0.05 + Math.random() * 0.1
+    });
   }
+}
 
-  // Screen shake
-  let shake = 0;
-  let shakeX = 0, shakeY = 0;
-
-  // Camera / world offset
-  let worldX = 0;
-
-  // Ground Y
-  function groundY() { return H - H * GROUND_HEIGHT_RATIO; }
-
-  // Reset player
-  function resetPlayer() {
-    player.x = W * 0.25;
-    player.y = groundY() - player.size;
-    player.vy = 0;
-    player.rotation = 0;
-    player.onGround = true;
-    player.dead = false;
-    player.trail = [];
-    worldX = 0;
-    particles.length = 0;
-    shake = 0;
-    gameSpeed = GAME_SPEED_BASE;
+function drawDust() {
+  dustCtx.clearRect(0, 0, dustCanvas.width, dustCanvas.height);
+  for (const p of dustParticles) {
+    p.x += p.speedX;
+    p.y += p.speedY;
+    if (p.x < 0) p.x = dustCanvas.width;
+    if (p.x > dustCanvas.width) p.x = 0;
+    if (p.y < 0) p.y = dustCanvas.height;
+    
+    const offsetY = scrollY * p.parallaxFactor;
+    let drawY = (p.y + offsetY) % dustCanvas.height;
+    if (drawY < 0) drawY += dustCanvas.height;
+    
+    dustCtx.beginPath();
+    dustCtx.arc(p.x, drawY, p.size, 0, Math.PI * 2);
+    dustCtx.fillStyle = `rgba(180, 200, 255, ${p.alpha})`;
+    dustCtx.fill();
   }
+}
 
-  // Input
-  let jumpPressed = false;
-  let jumpHeld = false;
-  function onPress() {
-    if (state === 'playing' && !player.dead) {
-      if (player.onGround) {
-        player.vy = JUMP_VEL;
-        player.onGround = false;
-      }
-    }
+// ===== WORMHOLE =====
+const whCanvas = document.getElementById('wormholeCanvas');
+const whCtx = whCanvas.getContext('2d');
+let whTime = 0;
+
+function resizeWormhole() {
+  whCanvas.width = window.innerWidth;
+  whCanvas.height = window.innerHeight;
+}
+
+function drawWormhole(progress) {
+  whCtx.clearRect(0, 0, whCanvas.width, whCanvas.height);
+  const cx = whCanvas.width / 2;
+  const cy = whCanvas.height / 2;
+  whTime += 0.005;
+  
+  const intensity = Math.min(1, progress * 2);
+  
+  // Concentric rings
+  for (let i = 0; i < 40; i++) {
+    const radius = 50 + i * 15 + Math.sin(whTime + i * 0.3) * 10;
+    const alpha = (1 - i / 40) * 0.15 * intensity;
+    const hue = 200 + i * 2 + whTime * 20;
+    
+    whCtx.beginPath();
+    whCtx.arc(cx, cy, radius * intensity, 0, Math.PI * 2);
+    whCtx.strokeStyle = `hsla(${hue}, 70%, 60%, ${alpha})`;
+    whCtx.lineWidth = 1.5;
+    whCtx.stroke();
   }
-  window.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    onPress();
-  }, { passive: false });
-  window.addEventListener('touchend', (e) => { e.preventDefault(); }, { passive: false });
-  window.addEventListener('mousedown', (e) => {
-    if (e.target.tagName === 'BUTTON') return;
-    onPress();
+  
+  // Inner glow
+  const grd = whCtx.createRadialGradient(cx, cy, 0, cx, cy, 200 * intensity);
+  grd.addColorStop(0, `rgba(150, 200, 255, ${0.2 * intensity})`);
+  grd.addColorStop(0.5, `rgba(80, 120, 200, ${0.05 * intensity})`);
+  grd.addColorStop(1, 'transparent');
+  whCtx.fillStyle = grd;
+  whCtx.fillRect(0, 0, whCanvas.width, whCanvas.height);
+  
+  // Light streaks
+  for (let i = 0; i < 20; i++) {
+    const angle = (i / 20) * Math.PI * 2 + whTime;
+    const len = 100 + Math.sin(whTime * 2 + i) * 50;
+    const innerR = 30 * intensity;
+    const outerR = (innerR + len) * intensity;
+    
+    whCtx.beginPath();
+    whCtx.moveTo(
+      cx + Math.cos(angle) * innerR,
+      cy + Math.sin(angle) * innerR
+    );
+    whCtx.lineTo(
+      cx + Math.cos(angle) * outerR,
+      cy + Math.sin(angle) * outerR
+    );
+    whCtx.strokeStyle = `rgba(180, 210, 255, ${0.1 * intensity})`;
+    whCtx.lineWidth = 1;
+    whCtx.stroke();
+  }
+}
+
+// ===== BLACK HOLE =====
+const bhCanvas = document.getElementById('blackholeCanvas');
+const bhCtx = bhCanvas.getContext('2d');
+let bhTime = 0;
+
+function resizeBlackhole() {
+  bhCanvas.width = window.innerWidth;
+  bhCanvas.height = window.innerHeight;
+}
+
+function drawBlackHole(progress) {
+  bhCtx.clearRect(0, 0, bhCanvas.width, bhCanvas.height);
+  const cx = bhCanvas.width / 2;
+  const cy = bhCanvas.height / 2;
+  bhTime += 0.003;
+  
+  const intensity = Math.min(1, progress * 1.5);
+  const bhRadius = Math.min(cx, cy) * 0.2 * intensity;
+  
+  // Accretion disk
+  for (let ring = 0; ring < 60; ring++) {
+    const r = bhRadius * 1.5 + ring * 4;
+    const alpha = (1 - ring / 60) * 0.3 * intensity;
+    const hue = 30 + ring * 0.5;
+    
+    bhCtx.beginPath();
+    bhCtx.ellipse(cx, cy, r, r * 0.3, -0.3 + Math.sin(bhTime) * 0.05, 0, Math.PI * 2);
+    bhCtx.strokeStyle = `hsla(${hue}, 80%, ${50 + ring * 0.5}%, ${alpha})`;
+    bhCtx.lineWidth = 2;
+    bhCtx.stroke();
+  }
+  
+  // Photon ring
+  bhCtx.beginPath();
+  bhCtx.arc(cx, cy, bhRadius * 1.2, 0, Math.PI * 2);
+  bhCtx.strokeStyle = `rgba(255, 200, 100, ${0.6 * intensity})`;
+  bhCtx.lineWidth = 3;
+  bhCtx.shadowColor = 'rgba(255, 180, 50, 0.8)';
+  bhCtx.shadowBlur = 30;
+  bhCtx.stroke();
+  bhCtx.shadowBlur = 0;
+  
+  // Event horizon
+  const bhGrd = bhCtx.createRadialGradient(cx, cy, 0, cx, cy, bhRadius);
+  bhGrd.addColorStop(0, '#000');
+  bhGrd.addColorStop(0.8, '#000');
+  bhGrd.addColorStop(1, `rgba(255, 150, 50, ${0.3 * intensity})`);
+  bhCtx.beginPath();
+  bhCtx.arc(cx, cy, bhRadius, 0, Math.PI * 2);
+  bhCtx.fillStyle = bhGrd;
+  bhCtx.fill();
+  
+  // Gravitational lensing arcs
+  for (let i = 0; i < 8; i++) {
+    const angle = (i / 8) * Math.PI * 2 + bhTime * 0.5;
+    const arcR = bhRadius * 1.8;
+    bhCtx.beginPath();
+    bhCtx.arc(cx, cy, arcR, angle, angle + 0.4);
+    bhCtx.strokeStyle = `rgba(255, 220, 150, ${0.15 * intensity})`;
+    bhCtx.lineWidth = 2;
+    bhCtx.stroke();
+  }
+  
+  // Outer glow
+  const outerGrd = bhCtx.createRadialGradient(cx, cy, bhRadius, cx, cy, bhRadius * 4);
+  outerGrd.addColorStop(0, `rgba(255, 150, 50, ${0.05 * intensity})`);
+  outerGrd.addColorStop(1, 'transparent');
+  bhCtx.fillStyle = outerGrd;
+  bhCtx.fillRect(0, 0, bhCanvas.width, bhCanvas.height);
+}
+
+// ===== TESSERACT GRID =====
+function buildTesseractGrid() {
+  const grid = document.getElementById('tesseractGrid');
+  const spacing = 80;
+  for (let i = 0; i < 30; i++) {
+    const line = document.createElement('div');
+    line.className = 'grid-line-h';
+    line.style.top = (i * spacing) + 'px';
+    grid.appendChild(line);
+  }
+  for (let i = 0; i < 40; i++) {
+    const line = document.createElement('div');
+    line.className = 'grid-line-v';
+    line.style.left = (i * spacing) + 'px';
+    grid.appendChild(line);
+  }
+  
+  // Animated lines
+  const linesContainer = document.getElementById('tesseractLines');
+  for (let i = 0; i < 10; i++) {
+    const tl = document.createElement('div');
+    tl.className = 'tline';
+    tl.style.top = (10 + i * 9) + '%';
+    tl.style.width = (30 + Math.random() * 40) + '%';
+    tl.style.animationDelay = (i * 0.8) + 's';
+    tl.style.animationDuration = (6 + Math.random() * 4) + 's';
+    linesContainer.appendChild(tl);
+  }
+}
+
+// ===== NAV DOTS =====
+function buildNavDots() {
+  const container = document.getElementById('navDots');
+  const sections = document.querySelectorAll('[data-section]');
+  sections.forEach((s, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot';
+    dot.addEventListener('click', () => {
+      s.scrollIntoView({ behavior: 'smooth' });
+    });
+    container.appendChild(dot);
   });
-  window.addEventListener('keydown', (e) => {
-    if (e.code === 'Space' || e.code === 'ArrowUp') {
-      e.preventDefault();
-      onPress();
+}
+
+// ===== SCROLL HANDLING =====
+function getSectionProgress(section) {
+  const rect = section.getBoundingClientRect();
+  const vh = window.innerHeight;
+  const progress = 1 - (rect.top / vh);
+  return Math.max(0, Math.min(1, progress));
+}
+
+function getSectionVisibility(section) {
+  const rect = section.getBoundingClientRect();
+  const vh = window.innerHeight;
+  const center = rect.top + rect.height / 2;
+  const visibility = 1 - Math.abs(center - vh / 2) / (vh * 0.8);
+  return Math.max(0, Math.min(1, visibility));
+}
+
+// ===== INTERSECTION OBSERVER =====
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
     }
   });
+}, { threshold: 0.3 });
 
-  // Buttons
-  playBtn.addEventListener('click', startGame);
-  playBtn.addEventListener('touchend', (e) => { e.preventDefault(); startGame(); });
-  retryBtn.addEventListener('click', startGame);
-  retryBtn.addEventListener('touchend', (e) => { e.preventDefault(); startGame(); });
-  menuBtn.addEventListener('click', toMenu);
-  menuBtn.addEventListener('touchend', (e) => { e.preventDefault(); toMenu(); });
+document.querySelectorAll('[data-reveal]').forEach(el => {
+  revealObserver.observe(el);
+});
 
-  function startGame() {
-    menu.classList.add('hidden');
-    death.classList.add('hidden');
-    hud.classList.remove('hidden');
-    hint.classList.remove('hidden');
-    setTimeout(() => hint.classList.add('hidden'), 2500);
-    state = 'playing';
-    resetPlayer();
-    attemptNum.textContent = attempt;
+// ===== MAIN LOOP =====
+function animate() {
+  targetScrollY = window.pageYOffset;
+  scrollY += (targetScrollY - scrollY) * 0.1;
+  
+  drawStars();
+  drawDust();
+  
+  // Wormhole
+  const wormholeSection = document.querySelector('.wormhole-section');
+  if (wormholeSection) {
+    const wp = getSectionVisibility(wormholeSection);
+    drawWormhole(wp);
+    const wt = document.getElementById('wormholeTitle');
+    const ws = document.getElementById('wormholeSub');
+    if (wt) wt.style.opacity = wp > 0.3 ? 1 : 0;
+    if (ws) ws.style.opacity = wp > 0.4 ? 1 : 0;
   }
-  function toMenu() {
-    death.classList.add('hidden');
-    hud.classList.add('hidden');
-    menu.classList.remove('hidden');
-    state = 'menu';
+  
+  // Black hole
+  const bhSection = document.querySelector('.blackhole-section');
+  if (bhSection) {
+    const bp = getSectionVisibility(bhSection);
+    drawBlackHole(bp);
+    const bht = document.getElementById('bhTitle');
+    const bhs = document.getElementById('bhSub');
+    if (bht) bht.style.opacity = bp > 0.3 ? 1 : 0;
+    if (bhs) bhs.style.opacity = bp > 0.4 ? 1 : 0;
   }
-  function die() {
-    if (player.dead) return;
-    player.dead = true;
-    state = 'dead';
-    shake = 20;
-    spawnParticles(player.x + player.size/2, player.y + player.size/2, '#ff3366', 40, 12);
-    spawnParticles(player.x + player.size/2, player.y + player.size/2, '#ffea00', 20, 10);
-    const pct = Math.min(100, Math.floor((worldX / levelLength) * 100));
-    if (pct > bestPercent) {
-      bestPercent = pct;
-      localStorage.setItem('gr_best', bestPercent);
-      bestScoreEl.textContent = bestPercent;
+  
+  // Parallax for hero
+  const hero = document.querySelector('.hero');
+  if (hero) {
+    const heroTitle = document.getElementById('heroTitle');
+    const hp = scrollY / window.innerHeight;
+    if (heroTitle) {
+      heroTitle.style.transform = `translateY(${hp * 100}px) scale(${1 - hp * 0.1})`;
+      heroTitle.style.opacity = Math.max(0, 1 - hp * 1.5);
     }
-    setTimeout(() => {
-      deathPercent.textContent = pct;
-      deathAttempt.textContent = attempt;
-      death.classList.remove('hidden');
-      hud.classList.add('hidden');
-      attempt++;
-    }, 700);
   }
-
-  // Collision helpers
-  function rectRect(a, b) {
-    return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+  
+  // Planet parallax
+  const planetImg = document.getElementById('planetImg');
+  if (planetImg) {
+    const ps = document.querySelector('.planet-section');
+    if (ps) {
+      const pp = getSectionProgress(ps);
+      planetImg.style.transform = planetImg.classList.contains('visible') ? 
+        `scale(1) translateY(${(pp - 1) * -30}px)` : 
+        `scale(0.8) translateY(${(pp - 1) * -30}px)`;
+    }
   }
-  // Triangle spike collision (simplified: use inner rect)
-  function spikeRect(sx, sy, sw, sh, r) {
-    // spike triangle: base at bottom, point at top
-    // collision box is smaller than full rect
-    const inset = sw * 0.2;
-    const pr = { x: r.x, y: r.y, w: r.w, h: r.h };
-    const sb = { x: sx + inset, y: sy + sh * 0.3, w: sw - inset*2, h: sh * 0.7 };
-    return rectRect(pr, sb);
+  
+  // Tesseract grid parallax
+  const tGrid = document.getElementById('tesseractGrid');
+  if (tGrid && tGrid.classList.contains('visible')) {
+    const ts = document.querySelector('.tesseract-section');
+    if (ts) {
+      const tp = getSectionProgress(ts);
+      tGrid.style.transform = `translateY(${(tp - 1) * 50}px) rotateX(${(tp - 1) * 5}deg)`;
+    }
   }
-
-  // Update
-  function update() {
-    if (state !== 'playing') return;
-    if (player.dead) return;
-
-    // World scroll
-    worldX += gameSpeed;
-
-    // Physics
-    player.vy += GRAVITY;
-    player.y += player.vy;
-
-    // Ground collision
-    const gy = groundY();
-    if (player.y + player.size >= gy) {
-      player.y = gy - player.size;
-      player.vy = 0;
-      player.onGround = true;
-    } else {
-      player.onGround = false;
-    }
-
-    // Rotation
-    if (!player.onGround) {
-      player.rotation += 0.15;
-    } else {
-      // Snap to nearest 90deg
-      const target = Math.round(player.rotation / (Math.PI/2)) * (Math.PI/2);
-      player.rotation += (target - player.rotation) * 0.3;
-    }
-
-    // Trail
-    player.trail.push({ x: player.x + player.size/2, y: player.y + player.size/2, life: 1 });
-    if (player.trail.length > 15) player.trail.shift();
-    for (const t of player.trail) t.life -= 0.07;
-
-    // Collision with obstacles
-    const pr = { x: player.x + 4, y: player.y + 4, w: player.size - 8, h: player.size - 8 };
-    const viewLeft = worldX - 100;
-    const viewRight = worldX + W + 100;
-
-    for (const obs of level) {
-      const wx = obs.x - worldX + player.x;
-      if (wx < viewLeft - worldX + player.x - 200 || wx > viewRight - worldX + player.x + 200) continue;
-      const oy = obs.y || 0;
-
-      if (obs.type === 'spike') {
-        const sx = wx;
-        const sy = gy - UNIT + oy;
-        if (spikeRect(sx, sy, UNIT, UNIT, pr)) { die(); return; }
-      } else if (obs.type === 'block') {
-        const bx = wx;
-        const by = gy - UNIT + oy;
-        const br = { x: bx, y: by, w: UNIT, h: UNIT };
-        // Check if landing on top
-        if (rectRect(pr, br)) {
-          // Determine collision side
-          const prevBottom = player.y + player.size - player.vy;
-          if (player.vy >= 0 && prevBottom <= by + 2) {
-            // Land on top
-            player.y = by - player.size;
-            player.vy = 0;
-            player.onGround = true;
-          } else {
-            // Side or bottom collision = death
-            die(); return;
-          }
-        }
-      } else if (obs.type === 'spike_on_block') {
-        // Block
-        const bx = wx;
-        const by = gy - UNIT + oy;
-        const br = { x: bx, y: by, w: UNIT, h: UNIT };
-        if (rectRect(pr, br)) {
-          const prevBottom = player.y + player.size - player.vy;
-          if (player.vy >= 0 && prevBottom <= by + 2) {
-            player.y = by - player.size;
-            player.vy = 0;
-            player.onGround = true;
-          } else {
-            die(); return;
-          }
-        }
-        // Spike on top
-        const sx = wx;
-        const sy = by - UNIT;
-        if (spikeRect(sx, sy, UNIT, UNIT, pr)) { die(); return; }
-      } else if (obs.type === 'platform') {
-        const bx = wx;
-        const by = gy - UNIT * 2 + oy;
-        const br = { x: bx, y: by, w: UNIT * 2, h: UNIT * 0.4 };
-        if (rectRect(pr, br)) {
-          const prevBottom = player.y + player.size - player.vy;
-          if (player.vy >= 0 && prevBottom <= by + 4) {
-            player.y = by - player.size;
-            player.vy = 0;
-            player.onGround = true;
-          } else {
-            die(); return;
-          }
-        }
-      }
-    }
-
-    // Win condition
-    if (worldX >= levelLength) {
-      const pct = 100;
-      if (pct > bestPercent) {
-        bestPercent = pct;
-        localStorage.setItem('gr_best', bestPercent);
-        bestScoreEl.textContent = bestPercent;
-      }
-      deathPercent.textContent = pct;
-      deathAttempt.textContent = attempt;
-      document.querySelector('.death-title').textContent = 'COMPLETE!';
-      death.classList.remove('hidden');
-      hud.classList.add('hidden');
-      state = 'dead';
-      attempt++;
-    }
-
-    // Update HUD
-    const pct = Math.min(100, Math.floor((worldX / levelLength) * 100));
-    percentNum.textContent = pct;
-    progressFill.style.width = pct + '%';
-
-    // Shake decay
-    if (shake > 0) {
-      shakeX = (Math.random() - 0.5) * shake;
-      shakeY = (Math.random() - 0.5) * shake;
-      shake *= 0.85;
-      if (shake < 0.5) shake = 0;
-    } else {
-      shakeX = 0; shakeY = 0;
-    }
-
-    updateParticles();
+  
+  // Nebula overlay parallax
+  const nebula = document.getElementById('nebulaOverlay');
+  if (nebula) {
+    nebula.style.transform = `translateY(${scrollY * 0.05}px)`;
   }
-
-  // Draw
-  let bgOffset = 0;
-  let groundOffset = 0;
-  function draw() {
-    // Background gradient
-    const grad = ctx.createLinearGradient(0, 0, 0, H);
-    grad.addColorStop(0, '#1a0b3d');
-    grad.addColorStop(0.5, '#2d1b5e');
-    grad.addColorStop(1, '#0f0524');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W, H);
-
-    ctx.save();
-    ctx.translate(shakeX, shakeY);
-
-    // Parallax stars / grid
-    bgOffset = (state === 'playing' ? bgOffset + gameSpeed * 0.3 : bgOffset + 0.5);
-    ctx.strokeStyle = 'rgba(100, 80, 200, 0.15)';
-    ctx.lineWidth = 1;
-    const gridSize = 60;
-    const startX = -(bgOffset % gridSize);
-    for (let x = startX; x < W; x += gridSize) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, groundY());
-      ctx.stroke();
+  
+  // Progress bar
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = (scrollY / docHeight) * 100;
+  document.getElementById('progressBar').style.width = progress + '%';
+  
+  // Nav dots
+  const sections = document.querySelectorAll('[data-section]');
+  const dots = document.querySelectorAll('.nav-dot');
+  sections.forEach((s, i) => {
+    const vis = getSectionVisibility(s);
+    if (dots[i]) {
+      dots[i].classList.toggle('active', vis > 0.5);
     }
-    for (let y = 0; y < groundY(); y += gridSize) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(W, y);
-      ctx.stroke();
-    }
+  });
+  
+  requestAnimationFrame(animate);
+}
 
-    // Background mountains
-    ctx.fillStyle = 'rgba(60, 30, 120, 0.5)';
+// ===== RESIZE =====
+function onResize() {
+  initStars();
+  initDust();
+  resizeWormhole();
+  resizeBlackhole();
+}
+
+window.addEventListener('resize', onResize);
+window.addEventListener('scroll', () => {}, { passive: true });
+
+// ===== INIT =====
+function init() {
+  initStars();
+  initDust();
+  resizeWormhole();
+  resizeBlackhole();
+  buildTesseractGrid();
+  buildNavDots();
+  animate();
+}
+
+// Generate planet image
+generatePlanetImage();
+
+function generatePlanetImage() {
+  const c = document.createElement('canvas');
+  c.width = 700; c.height = 700;
+  const ctx = c.getContext('2d');
+  
+  // Base
+  const grd = ctx.createRadialGradient(300, 280, 50, 350, 350, 350);
+  grd.addColorStop(0, '#d4a574');
+  grd.addColorStop(0.3, '#b8845a');
+  grd.addColorStop(0.6, '#8a6040');
+  grd.addColorStop(0.8, '#5a3a28');
+  grd.addColorStop(1, '#2a1a10');
+  ctx.fillStyle = grd;
+  ctx.beginPath();
+  ctx.arc(350, 350, 340, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Surface detail bands
+  for (let i = 0; i < 20; i++) {
+    const y = 100 + i * 28 + Math.random() * 10;
+    const alpha = 0.05 + Math.random() * 0.1;
+    ctx.fillStyle = `rgba(${150 + Math.random()*50}, ${100 + Math.random()*40}, ${60 + Math.random()*30}, ${alpha})`;
+    ctx.fillRect(50, y, 600, 8 + Math.random() * 15);
+  }
+  
+  // Storm spots
+  for (let i = 0; i < 5; i++) {
+    const sx = 150 + Math.random() * 400;
+    const sy = 200 + Math.random() * 300;
+    const sr = 15 + Math.random() * 30;
+    const sgrd = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr);
+    sgrd.addColorStop(0, `rgba(200, 150, 100, 0.3)`);
+    sgrd.addColorStop(1, 'transparent');
+    ctx.fillStyle = sgrd;
     ctx.beginPath();
-    ctx.moveTo(0, groundY());
-    const mOffset = (state === 'playing' ? worldX * 0.2 : Date.now() * 0.02);
-    for (let x = 0; x <= W; x += 40) {
-      const h = Math.sin((x + mOffset) * 0.01) * 60 + Math.sin((x + mOffset) * 0.003) * 100 + 150;
-      ctx.lineTo(x, groundY() - h);
-    }
-    ctx.lineTo(W, groundY());
-    ctx.closePath();
+    ctx.ellipse(sx, sy, sr * 1.5, sr, 0, 0, Math.PI * 2);
     ctx.fill();
-
-    // Ground
-    const gy = groundY();
-    const groundGrad = ctx.createLinearGradient(0, gy, 0, H);
-    groundGrad.addColorStop(0, '#3d1f7a');
-    groundGrad.addColorStop(1, '#1a0b3d');
-    ctx.fillStyle = groundGrad;
-    ctx.fillRect(0, gy, W, H - gy);
-
-    // Ground top line (neon)
-    ctx.strokeStyle = '#00f0ff';
-    ctx.lineWidth = 3;
-    ctx.shadowColor = '#00f0ff';
-    ctx.shadowBlur = 15;
-    ctx.beginPath();
-    ctx.moveTo(0, gy);
-    ctx.lineTo(W, gy);
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-
-    // Ground grid
-    groundOffset = state === 'playing' ? groundOffset + gameSpeed : groundOffset + 1;
-    ctx.strokeStyle = 'rgba(0, 240, 255, 0.2)';
-    ctx.lineWidth = 1;
-    const gGridSize = 50;
-    const gStart = -(groundOffset % gGridSize);
-    for (let x = gStart; x < W; x += gGridSize) {
-      ctx.beginPath();
-      ctx.moveTo(x, gy);
-      ctx.lineTo(x, H);
-      ctx.stroke();
-    }
-    for (let y = gy + gGridSize; y < H; y += gGridSize) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(W, y);
-      ctx.stroke();
-    }
-
-    // Draw obstacles
-    if (state === 'playing' || state === 'dead') {
-      for (const obs of level) {
-        const sx = obs.x - worldX + player.x;
-        if (sx < -100 || sx > W + 100) continue;
-        const oy = obs.y || 0;
-
-        if (obs.type === 'spike') {
-          drawSpike(sx, gy - UNIT + oy, UNIT, UNIT);
-        } else if (obs.type === 'block') {
-          drawBlock(sx, gy - UNIT + oy, UNIT, UNIT);
-        } else if (obs.type === 'spike_on_block') {
-          drawBlock(sx, gy - UNIT + oy, UNIT, UNIT);
-          drawSpike(sx, gy - UNIT * 2 + oy, UNIT, UNIT);
-        } else if (obs.type === 'platform') {
-          drawPlatform(sx, gy - UNIT * 2 + oy, UNIT * 2, UNIT * 0.4);
-        }
-      }
-    }
-
-    // Trail
-    if (!player.dead) {
-      for (let i = 0; i < player.trail.length; i++) {
-        const t = player.trail[i];
-        if (t.life <= 0) continue;
-        ctx.globalAlpha = t.life * 0.5;
-        ctx.fillStyle = '#00f0ff';
-        const s = player.size * t.life * 0.8;
-        ctx.fillRect(t.x - s/2, t.y - s/2, s, s);
-      }
-      ctx.globalAlpha = 1;
-    }
-
-    // Player
-    if (!player.dead) {
-      ctx.save();
-      ctx.translate(player.x + player.size/2, player.y + player.size/2);
-      ctx.rotate(player.rotation);
-      // Glow
-      ctx.shadowColor = '#00f0ff';
-      ctx.shadowBlur = 20;
-      // Body
-      const pg = ctx.createLinearGradient(-player.size/2, -player.size/2, player.size/2, player.size/2);
-      pg.addColorStop(0, '#00f0ff');
-      pg.addColorStop(1, '#0080ff');
-      ctx.fillStyle = pg;
-      ctx.fillRect(-player.size/2, -player.size/2, player.size, player.size);
-      ctx.shadowBlur = 0;
-      // Border
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(-player.size/2, -player.size/2, player.size, player.size);
-      // Inner detail
-      ctx.fillStyle = 'rgba(255,255,255,0.3)';
-      ctx.fillRect(-player.size/2 + 6, -player.size/2 + 6, player.size - 12, 4);
-      // Eye/icon
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(-6, -4, 12, 8);
-      ctx.fillStyle = '#0a0a1a';
-      ctx.fillRect(-3, -2, 6, 4);
-      ctx.restore();
-    }
-
-    // Particles
-    drawParticles();
-
-    ctx.restore();
   }
+  
+  // Shadow (terminator)
+  const shadowGrd = ctx.createLinearGradient(500, 0, 700, 0);
+  shadowGrd.addColorStop(0, 'transparent');
+  shadowGrd.addColorStop(0.5, 'rgba(0,0,0,0.5)');
+  shadowGrd.addColorStop(1, 'rgba(0,0,0,0.95)');
+  ctx.fillStyle = shadowGrd;
+  ctx.beginPath();
+  ctx.arc(350, 350, 340, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Atmosphere rim
+  const atmGrd = ctx.createRadialGradient(350, 350, 320, 350, 350, 350);
+  atmGrd.addColorStop(0, 'transparent');
+  atmGrd.addColorStop(0.7, 'transparent');
+  atmGrd.addColorStop(1, 'rgba(100, 150, 255, 0.15)');
+  ctx.fillStyle = atmGrd;
+  ctx.beginPath();
+  ctx.arc(350, 350, 350, 0, Math.PI * 2);
+  ctx.fill();
+  
+  document.getElementById('planetImg').src = c.toDataURL();
+}
 
-  function drawSpike(x, y, w, h) {
-    ctx.save();
-    ctx.shadowColor = '#ffea00';
-    ctx.shadowBlur = 12;
-    const g = ctx.createLinearGradient(x, y, x, y + h);
-    g.addColorStop(0, '#ffea00');
-    g.addColorStop(1, '#ff8800');
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.moveTo(x, y + h);
-    ctx.lineTo(x + w/2, y);
-    ctx.lineTo(x + w, y + h);
-    ctx.closePath();
-    ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    // Inner triangle
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    ctx.beginPath();
-    ctx.moveTo(x + w*0.2, y + h*0.8);
-    ctx.lineTo(x + w/2, y + h*0.3);
-    ctx.lineTo(x + w*0.8, y + h*0.8);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  }
-
-  function drawBlock(x, y, w, h) {
-    ctx.save();
-    ctx.shadowColor = '#ff00e6';
-    ctx.shadowBlur = 10;
-    const g = ctx.createLinearGradient(x, y, x, y + h);
-    g.addColorStop(0, '#ff00e6');
-    g.addColorStop(1, '#8000a0');
-    ctx.fillStyle = g;
-    ctx.fillRect(x, y, w, h);
-    ctx.shadowBlur = 0;
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(x, y, w, h);
-    // Inner detail
-    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x + 5, y + 5, w - 10, h - 10);
-    ctx.restore();
-  }
-
-  function drawPlatform(x, y, w, h) {
-    ctx.save();
-    ctx.shadowColor = '#00ff88';
-    ctx.shadowBlur = 12;
-    const g = ctx.createLinearGradient(x, y, x, y + h);
-    g.addColorStop(0, '#00ff88');
-    g.addColorStop(1, '#008844');
-    ctx.fillStyle = g;
-    ctx.fillRect(x, y, w, h);
-    ctx.shadowBlur = 0;
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(x, y, w, h);
-    ctx.restore();
-  }
-
-  // Main loop
-  function loop() {
-    update();
-    draw();
-    requestAnimationFrame(loop);
-  }
-  loop();
-
-  // Prevent scroll on iOS
-  document.addEventListener('gesturestart', e => e.preventDefault());
-  document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
-})();
+document.addEventListener('DOMContentLoaded', init);
+if (document.readyState !== 'loading') init();
 </script>
 </body>
 </html>
