@@ -2,1107 +2,788 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BEYOND THE STARS</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/space+grotesk@latest/latin-400-normal.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/space+grotesk@latest/latin-700-normal.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-300-normal.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-400-normal.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="PlanetOS — Climate change awareness and carbon footprint calculator.">
+<meta name="theme-color" content="#030308">
+<title>PlanetOS</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
+<link rel="dns-prefetch" href="https://image.qwenlm.ai">
+<link rel="preload" as="image" href="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/1935f7fd2-0d4d-494f-843a-53eeb6bb2c98.png" fetchpriority="high">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:auto;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+h1,h2,h3{font-weight:500;margin:0}
+:root{
+--accent:#47d6ea;
+--tool-bg:#f6f7f9;
+--tool-card:rgba(255,255,255,0.78);
+--tool-border:rgba(15,23,42,0.10);
+--tool-text:#0b0f14;
+--tool-muted:rgba(11,15,20,0.65);
+}
+html{scroll-behavior:auto}
 body{
-  background:#000;
-  color:#e0e0e0;
-  font-family:'Inter',sans-serif;
-  font-weight:300;
-  overflow-x:hidden;
-  cursor:crosshair;
+margin:0;
+font-family:"Gill Sans MT","Gill Sans","Trebuchet MS","Segoe UI",system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+font-weight:400;
+-webkit-font-smoothing:antialiased;
+-moz-osx-font-smoothing:grayscale;
+font-synthesis:none;
+color:#f9fafb;
+background:#030308;
+overflow-x:hidden;
 }
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:#000}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:2px}
-
-#starfield{
-  position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  z-index:0;
-  pointer-events:none;
+#scene{position:fixed;inset:0;z-index:0;contain:strict}
+.hero{position:relative;z-index:1;min-height:100vh;display:grid;place-items:center;padding:6vh 6vw;text-align:center;contain:layout style}
+.hero-text{max-width:70ch;will-change:opacity,transform}
+.hero-text h1{margin:0 0 0.6rem;font-size:clamp(2.8rem,6vw,5rem);line-height:1.04;letter-spacing:-0.02em}
+.hero-text p{margin:0.35rem 0;opacity:0.78}
+.hint{margin-top:1.2rem;opacity:0.55}
+.transition{position:relative;z-index:2;height:210vh;contain:layout}
+.transition-sticky{position:sticky;top:0;height:100vh;overflow:hidden;contain:strict}
+.transition-tint{position:absolute;inset:0;background:rgba(40,200,220,1);opacity:0;pointer-events:none;contain:strict}
+.transition-vignette{position:absolute;inset:0;background:radial-gradient(circle at 50% 30%,rgba(0,0,0,0) 35%,rgba(0,0,0,0.55) 100%);opacity:0;pointer-events:none;contain:strict}
+.transition-hint{position:absolute;left:50%;bottom:10%;transform:translateX(-50%);text-align:center;font-size:clamp(1.05rem,2.2vw,1.4rem);opacity:0;max-width:60ch;padding:0 6vw;pointer-events:none}
+.reef{position:relative;z-index:3;height:420vh;contain:layout}
+.reef-sticky{position:sticky;top:0;height:100vh;overflow:hidden;background:linear-gradient(to bottom,#47d6ea 0%,#0a5f6c 55%,#042d34 100%);contain:strict}
+.reef-fog{position:absolute;inset:0;background:radial-gradient(circle at 50% 20%,rgba(255,255,255,0.10),rgba(0,0,0,0.45));opacity:0;pointer-events:none;z-index:5;contain:strict}
+.reef-layer{position:absolute;inset:-12%;width:124%;height:124%;object-fit:cover;will-change:transform,opacity;pointer-events:none;content-visibility:auto;contain:layout style}
+.layer-bg{z-index:1}
+.layer-mid{z-index:2}
+.layer-midfg{z-index:3}
+.layer-fg{z-index:4}
+.reef-copy{position:absolute;z-index:9;left:50%;top:10%;transform:translateX(-50%);text-align:center;padding:0 6vw;opacity:0.92;text-shadow:0 10px 30px rgba(0,0,0,0.35);will-change:opacity,transform}
+.reef-copy h2{margin:0 0 0.4rem;font-size:clamp(1.8rem,4vw,3rem);letter-spacing:-0.02em}
+.reef-copy p{margin:0;opacity:0.8;max-width:60ch;margin-inline:auto}
+.bubbles{position:absolute;inset:0;z-index:8;display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;pointer-events:none}
+.bubble-col{height:100%;display:grid;place-items:center}
+.bubble{position:relative;width:clamp(220px,22vw,300px);height:clamp(360px,56vh,520px);border-radius:24px;overflow:hidden;background:rgba(255,255,255,0.86);border:1px solid rgba(255,255,255,0.28);box-shadow:0 26px 70px rgba(0,0,0,0.30),inset 0 1px 0 rgba(255,255,255,0.35);opacity:0;transform:translateY(140vh);will-change:transform,opacity;pointer-events:auto;contain:layout style}
+.bubble::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 22% 12%,rgba(255,255,255,0.30),rgba(255,255,255,0) 52%);pointer-events:none;z-index:1}
+.bubble::after{content:"";position:absolute;inset:0;border-radius:24px;border:1px solid rgba(11,15,20,0.06);pointer-events:none;z-index:1}
+.bubble-inner{position:relative;z-index:2;height:100%;display:grid;grid-template-rows:54% 46%}
+.bubble-media{position:relative;overflow:hidden;background:rgba(0,0,0,0.03);border-bottom:1px solid rgba(0,0,0,0.10)}
+.bubble-media img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.02);content-visibility:auto}
+.bubble-text{padding:16px 16px 18px;color:rgba(0,0,0,0.86);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:10px}
+.bubble-text h3{margin:0;font-size:clamp(1.0rem,1.55vw,1.15rem);letter-spacing:-0.01em;line-height:1.15;max-width:28ch}
+.bubble-text p{margin:0;font-size:clamp(0.88rem,1.25vw,0.96rem);line-height:1.32;opacity:0.78;max-width:30ch}
+.bubble-link{display:inline-block;margin-top:2px;max-width:100%;white-space:normal;word-break:break-word;color:rgba(0,0,0,0.84);text-decoration:none;border-bottom:1px solid rgba(0,0,0,0.22);padding-bottom:3px}
+.bubble-link:hover{border-bottom-color:rgba(0,0,0,0.55)}
+.bubble-link:focus-visible{outline:2px solid rgba(71,214,234,0.7);outline-offset:4px;border-bottom-color:transparent}
+.ice{position:relative;z-index:4;height:460vh;contain:layout}
+.ice-sticky{position:sticky;top:0;height:100vh;overflow:hidden;background:#02161b;contain:strict}
+.ice-stage{position:absolute;inset:0;transform:scale(1.12);transform-origin:50% 50%;pointer-events:none}
+.ice-fog{position:absolute;inset:0;background:radial-gradient(circle at 50% 20%,rgba(255,255,255,0.16),rgba(0,0,0,0.35));opacity:0;pointer-events:none;z-index:6;contain:strict}
+.ice-layer{position:absolute;will-change:transform,opacity;pointer-events:none;object-fit:cover;content-visibility:auto;contain:layout style}
+.ice-bg{left:0%;top:0%;width:100%;height:100%;z-index:1}
+.ice-mid{left:0%;top:44.190476%;width:100%;height:55.809524%;z-index:2}
+.ice-fg{left:70.301253%;top:69.638095%;width:29.698747%;height:30.361905%;z-index:3;transform-origin:60% 95%}
+.ice-copy{position:absolute;z-index:9;left:50%;top:10%;transform:translateX(-50%);text-align:center;padding:0 6vw;opacity:0.92;text-shadow:0 10px 30px rgba(0,0,0,0.35)}
+.ice-copy h2{margin:0 0 0.4rem;font-size:clamp(1.8rem,4vw,3rem);letter-spacing:-0.02em}
+.ice-copy p{margin:0;opacity:0.8;max-width:60ch;margin-inline:auto}
+.forest{position:relative;z-index:5;height:520vh;contain:layout}
+.forest-sticky{position:sticky;top:0;height:100vh;overflow:hidden;background:linear-gradient(to bottom,#d9f6ff 0%,#a9e6ff 55%,#78c7ef 100%);contain:strict}
+.forest-stage{position:absolute;inset:0;transform:scale(1.10);transform-origin:50% 50%;pointer-events:none}
+.forest-fog{position:absolute;inset:0;background:radial-gradient(circle at 50% 25%,rgba(255,255,255,0.12),rgba(0,0,0,0.18));opacity:0;pointer-events:none;z-index:7;contain:strict}
+.forest-layer{position:absolute;will-change:transform,opacity;pointer-events:none;object-fit:fill;content-visibility:auto;contain:layout style}
+.forest-bg{left:0%;top:28.59375%;width:100%;height:71.40625%;z-index:1}
+.forest-backmid{left:0%;top:33.4375%;width:100%;height:66.5625%;z-index:2}
+.forest-mid{left:0%;top:31.375%;width:100%;height:68.625%;z-index:3}
+.forest-midfg{left:3.886719%;top:37.5%;width:92.226563%;height:62.5%;z-index:4}
+.forest-frontmid{left:0%;top:43.3125%;width:100%;height:56.6875%;z-index:5}
+.forest-fg{left:3.857422%;top:46.4375%;width:92.285156%;height:53.5625%;z-index:6}
+.forest-copy{position:absolute;z-index:9;left:50%;top:10%;transform:translateX(-50%);text-align:center;padding:0 6vw;opacity:0.92;text-shadow:0 12px 34px rgba(0,0,0,0.45)}
+.forest-copy h2{margin:0 0 0.4rem;font-size:clamp(1.8rem,4vw,3rem);letter-spacing:-0.02em}
+.forest-copy p{margin:0;opacity:0.8;max-width:60ch;margin-inline:auto}
+.tool-bridge{position:relative;z-index:6;height:110vh;background:linear-gradient(to bottom,#ffffff 0%,#ffffff 24%,var(--tool-bg) 100%)}
+.calculator{position:relative;z-index:7;height:160vh;background:var(--tool-bg);color:var(--tool-text)}
+.calculator-sticky{position:sticky;top:0;height:100vh;display:grid;place-items:center;padding:7vh 6vw}
+.calc-shell{width:min(1120px,100%);display:grid;gap:clamp(18px,4vw,40px);align-items:start;grid-template-columns:1.05fr 0.95fr}
+.calc-head h2{margin:0 0 0.5rem;font-size:clamp(2.0rem,4vw,2.6rem);letter-spacing:-0.02em}
+.calc-sub{margin:0 0 0.9rem;color:var(--tool-muted);line-height:1.35;max-width:55ch}
+.calc-reset{appearance:none;border:1px solid var(--tool-border);background:rgba(255,255,255,0.7);color:rgba(11,15,20,0.78);border-radius:999px;padding:10px 14px;font-weight:500;cursor:pointer}
+.calc-reset:hover{border-color:rgba(15,23,42,0.18)}
+.setting-card{background:var(--tool-card);border:1px solid var(--tool-border);border-radius:26px;padding:18px 18px 16px;box-shadow:0 16px 50px rgba(0,0,0,0.10);backdrop-filter:blur(10px)}
+.setting-top{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:10px}
+.setting-label{font-weight:500;letter-spacing:-0.01em}
+.setting-value{font-weight:500;font-size:1.15rem;letter-spacing:-0.01em;color:rgba(11,15,20,0.9)}
+.setting-card input[type="range"]{width:100%;accent-color:var(--accent)}
+.setting-help{margin-top:10px;font-size:0.95rem;color:rgba(11,15,20,0.62)}
+.result-card{background:rgba(255,255,255,0.82);border:1px solid rgba(15,23,42,0.14);border-radius:30px;padding:22px;box-shadow:0 22px 70px rgba(0,0,0,0.14);backdrop-filter:blur(12px)}
+.result-label{font-size:0.95rem;color:rgba(11,15,20,0.62);margin-bottom:10px}
+.result-big{display:grid;gap:6px;margin-bottom:10px}
+.result-number{font-weight:500;font-size:clamp(2.6rem,5.4vw,3.6rem);letter-spacing:-0.03em}
+.result-unit{font-size:0.95rem;color:rgba(11,15,20,0.62)}
+.calc-link{appearance:none;border:none;background:none;color:rgba(11,15,20,0.72);padding:0;font-weight:500;cursor:pointer;text-decoration:underline;text-decoration-color:rgba(11,15,20,0.22);text-underline-offset:4px}
+.calc-link:hover{text-decoration-color:rgba(11,15,20,0.52)}
+.equiv{margin-top:14px;display:grid;gap:10px}
+.equiv-row{padding:12px 14px;border-radius:18px;background:rgba(11,15,20,0.04);border:1px solid rgba(15,23,42,0.08);font-weight:500;color:rgba(11,15,20,0.82)}
+.calc-breakdown-btn{margin-top:14px;width:100%;border-radius:18px;border:1px solid rgba(15,23,42,0.12);background:rgba(255,255,255,0.65);padding:12px 14px;cursor:pointer;font-weight:500;color:rgba(11,15,20,0.82)}
+.calc-breakdown-btn:hover{border-color:rgba(15,23,42,0.22)}
+.breakdown{margin-top:10px;border-radius:18px;background:rgba(11,15,20,0.03);border:1px solid rgba(15,23,42,0.08);padding:12px 14px;display:grid;gap:10px;max-height:0;opacity:0;overflow:hidden;padding-top:0;padding-bottom:0;border-width:0;transition:max-height 260ms ease,opacity 260ms ease,padding 260ms ease,border-width 260ms ease}
+.breakdown.is-open{max-height:240px;opacity:1;padding-top:12px;padding-bottom:12px;border-width:1px}
+.breakdown-row{display:flex;justify-content:space-between;color:rgba(11,15,20,0.75);font-weight:400}
+.calc-dialog{border:1px solid rgba(15,23,42,0.14);border-radius:22px;padding:0;width:min(640px,calc(100% - 40px));box-shadow:0 30px 90px rgba(0,0,0,0.25)}
+.calc-dialog::backdrop{background:rgba(0,0,0,0.35)}
+.calc-dialog-inner{padding:18px 18px 16px}
+.calc-dialog-inner h3{margin:0 0 8px;letter-spacing:-0.02em}
+.calc-dialog-inner p{margin:0 0 10px;color:rgba(11,15,20,0.72);line-height:1.4}
+.calc-dialog-inner ul{margin:0 0 14px;padding-left:18px;color:rgba(11,15,20,0.72);line-height:1.4}
+.calc-dialog-actions{display:flex;justify-content:flex-end;gap:10px}
+.calc-anim{opacity:0;transform:translateY(12px);transition:opacity 520ms ease,transform 520ms ease;transition-delay:var(--d,0ms)}
+.calculator.is-inview .calc-anim{opacity:1;transform:translateY(0)}
+@keyframes resultPulse{0%{transform:scale(1);box-shadow:0 22px 70px rgba(0,0,0,0.14)}45%{transform:scale(1.012);box-shadow:0 24px 78px rgba(71,214,234,0.18)}100%{transform:scale(1);box-shadow:0 22px 70px rgba(0,0,0,0.14)}}
+.result-card.pulse{animation:resultPulse 520ms ease}
+.calc-outro{position:relative;z-index:7;background:var(--tool-bg);color:var(--tool-text);padding:10vh 6vw 12vh}
+.calc-outro-inner{width:min(1120px,100%);margin:0 auto}
+.calc-outro h2{margin:0 0 0.6rem;font-size:clamp(1.8rem,4vw,2.6rem);letter-spacing:-0.02em}
+.calc-outro-sub{margin:0 0 1.2rem;color:var(--tool-muted);max-width:70ch}
+.calc-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+.calc-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:999px;padding:12px 16px;font-weight:500;cursor:pointer;text-decoration:none;border:1px solid rgba(15,23,42,0.14)}
+.calc-btn--solid{background:rgba(11,15,20,0.92);color:#fff;border-color:rgba(11,15,20,0.92)}
+.calc-btn--solid:hover{background:rgba(11,15,20,0.86)}
+.calc-btn--ghost{background:rgba(255,255,255,0.75);color:rgba(11,15,20,0.86)}
+.calc-btn--ghost:hover{border-color:rgba(15,23,42,0.22)}
+.calc-toast{margin-top:14px;color:rgba(11,15,20,0.72);font-weight:500;min-height:1.2em}
+.footer-spacer{height:90vh;background:#03161a;display:grid;place-items:center;padding:6vh 6vw}
+.footer-credit{margin:0;color:rgba(249,250,251,0.72);font-size:0.95rem;letter-spacing:0.02em;text-align:center}
+@media(max-width:900px){
+.bubbles{grid-template-columns:1fr;gap:18px;padding:10vh 0}
+.bubble{width:min(86vw,520px)}
+.calc-shell{grid-template-columns:1fr}
+.calc-results{order:-1}
 }
-
-.parallax-container{
-  position:relative;
-  z-index:1;
-}
-
-.section{
-  position:relative;
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-}
-
-/* ===== HERO ===== */
-.hero{
-  min-height:150vh;
-  flex-direction:column;
-  justify-content:flex-start;
-  padding-top:30vh;
-}
-.hero-title{
-  font-family:'Space Grotesk',sans-serif;
-  font-weight:700;
-  font-size:clamp(3rem,10vw,10rem);
-  letter-spacing:0.15em;
-  text-align:center;
-  color:#fff;
-  text-shadow:0 0 80px rgba(180,200,255,0.3),0 0 200px rgba(100,150,255,0.1);
-  line-height:1.1;
-  opacity:0;
-  transform:translateY(40px) scale(0.95);
-  animation:heroIn 3s ease-out 0.5s forwards;
-}
-.hero-sub{
-  font-size:clamp(0.9rem,2vw,1.4rem);
-  letter-spacing:0.5em;
-  text-transform:uppercase;
-  color:rgba(180,200,255,0.5);
-  margin-top:2rem;
-  opacity:0;
-  animation:fadeUp 2s ease-out 2s forwards;
-}
-.scroll-indicator{
-  position:absolute;
-  bottom:10vh;
-  left:50%;
-  transform:translateX(-50%);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:12px;
-  opacity:0;
-  animation:fadeUp 2s ease-out 3s forwards;
-}
-.scroll-indicator span{
-  font-size:0.7rem;
-  letter-spacing:0.4em;
-  text-transform:uppercase;
-  color:rgba(255,255,255,0.3);
-}
-.scroll-line{
-  width:1px;
-  height:60px;
-  background:linear-gradient(to bottom,rgba(255,255,255,0.4),transparent);
-  animation:scrollPulse 2s ease-in-out infinite;
-}
-
-@keyframes heroIn{
-  to{opacity:1;transform:translateY(0) scale(1)}
-}
-@keyframes fadeUp{
-  to{opacity:1;transform:translateY(0)}
-}
-@keyframes scrollPulse{
-  0%,100%{opacity:0.3;transform:scaleY(1)}
-  50%{opacity:0.8;transform:scaleY(1.2)}
-}
-
-/* ===== QUOTE SECTIONS ===== */
-.quote-section{
-  min-height:100vh;
-  flex-direction:column;
-  padding:0 10%;
-}
-.quote-text{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:clamp(1.5rem,4vw,3.5rem);
-  font-weight:400;
-  line-height:1.6;
-  text-align:center;
-  color:rgba(255,255,255,0.85);
-  max-width:900px;
-  opacity:0;
-  transform:translateY(60px);
-  transition:all 1.5s cubic-bezier(0.16,1,0.3,1);
-}
-.quote-text.visible{
-  opacity:1;
-  transform:translateY(0);
-}
-.quote-attr{
-  margin-top:2rem;
-  font-size:0.85rem;
-  letter-spacing:0.3em;
-  text-transform:uppercase;
-  color:rgba(180,200,255,0.4);
-  opacity:0;
-  transform:translateY(30px);
-  transition:all 1.5s cubic-bezier(0.16,1,0.3,1) 0.3s;
-}
-.quote-attr.visible{
-  opacity:1;
-  transform:translateY(0);
-}
-
-/* ===== WORMHOLE SECTION ===== */
-.wormhole-section{
-  min-height:200vh;
-  position:relative;
-}
-.wormhole-canvas{
-  position:sticky;
-  top:0;
-  width:100%;
-  height:100vh;
-  z-index:1;
-}
-.wormhole-text{
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  z-index:2;
-  text-align:center;
-  pointer-events:none;
-}
-.wormhole-text h2{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:clamp(2rem,6vw,5rem);
-  font-weight:700;
-  letter-spacing:0.2em;
-  color:#fff;
-  text-shadow:0 0 60px rgba(100,180,255,0.5);
-  opacity:0;
-  transition:opacity 1s;
-}
-.wormhole-text p{
-  margin-top:1.5rem;
-  font-size:clamp(0.9rem,1.8vw,1.2rem);
-  color:rgba(180,210,255,0.6);
-  letter-spacing:0.15em;
-  max-width:500px;
-  margin-left:auto;
-  margin-right:auto;
-  line-height:1.8;
-  opacity:0;
-  transition:opacity 1s 0.3s;
-}
-
-/* ===== PLANET SECTION ===== */
-.planet-section{
-  min-height:150vh;
-  position:relative;
-}
-.planet-wrapper{
-  position:sticky;
-  top:0;
-  width:100%;
-  height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-}
-.planet-img{
-  width:clamp(300px,50vw,700px);
-  height:clamp(300px,50vw,700px);
-  border-radius:50%;
-  object-fit:cover;
-  box-shadow:
-    0 0 100px rgba(200,150,80,0.2),
-    0 0 200px rgba(200,150,80,0.1),
-    inset -30px -30px 80px rgba(0,0,0,0.8);
-  opacity:0;
-  transform:scale(0.8);
-  transition:all 2s cubic-bezier(0.16,1,0.3,1);
-}
-.planet-img.visible{
-  opacity:1;
-  transform:scale(1);
-}
-.planet-ring{
-  position:absolute;
-  width:clamp(500px,80vw,1100px);
-  height:clamp(120px,15vw,200px);
-  border:2px solid rgba(200,180,140,0.2);
-  border-radius:50%;
-  transform:rotateX(75deg) rotateZ(-15deg);
-  box-shadow:0 0 30px rgba(200,180,140,0.1);
-  opacity:0;
-  transition:opacity 2s 0.5s;
-}
-.planet-ring.visible{opacity:1}
-.planet-ring::before{
-  content:'';
-  position:absolute;
-  inset:-15px;
-  border:1px solid rgba(200,180,140,0.1);
-  border-radius:50%;
-}
-.planet-info{
-  position:absolute;
-  right:8%;
-  top:50%;
-  transform:translateY(-50%);
-  max-width:350px;
-  text-align:right;
-}
-.planet-info h3{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:clamp(1.5rem,3vw,2.5rem);
-  font-weight:700;
-  letter-spacing:0.1em;
-  color:#fff;
-  margin-bottom:1rem;
-}
-.planet-info p{
-  font-size:0.9rem;
-  line-height:1.8;
-  color:rgba(200,200,220,0.6);
-  letter-spacing:0.05em;
-}
-.planet-label{
-  position:absolute;
-  left:8%;
-  bottom:15%;
-  font-family:'Space Grotesk',sans-serif;
-  font-size:clamp(4rem,12vw,12rem);
-  font-weight:700;
-  letter-spacing:0.1em;
-  color:rgba(255,255,255,0.03);
-  pointer-events:none;
-  white-space:nowrap;
-}
-
-/* ===== BLACK HOLE SECTION ===== */
-.blackhole-section{
-  min-height:200vh;
-  position:relative;
-}
-.blackhole-wrapper{
-  position:sticky;
-  top:0;
-  width:100%;
-  height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.blackhole-canvas{
-  width:100%;
-  height:100%;
-  position:absolute;
-  top:0;left:0;
-}
-.blackhole-text{
-  position:relative;
-  z-index:2;
-  text-align:center;
-  pointer-events:none;
-}
-.blackhole-text h2{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:clamp(2.5rem,7vw,7rem);
-  font-weight:700;
-  letter-spacing:0.3em;
-  color:#fff;
-  text-shadow:0 0 100px rgba(255,180,80,0.3);
-  opacity:0;
-  transition:opacity 1.5s;
-}
-.blackhole-text .bh-sub{
-  margin-top:1rem;
-  font-size:clamp(0.8rem,1.5vw,1.1rem);
-  letter-spacing:0.4em;
-  text-transform:uppercase;
-  color:rgba(255,200,150,0.4);
-  opacity:0;
-  transition:opacity 1.5s 0.5s;
-}
-
-/* ===== TESSERACT SECTION ===== */
-.tesseract-section{
-  min-height:150vh;
-  position:relative;
-  overflow:hidden;
-}
-.tesseract-wrapper{
-  position:sticky;
-  top:0;
-  width:100%;
-  height:100vh;
-  perspective:1000px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.tesseract-grid{
-  position:absolute;
-  width:200%;
-  height:200%;
-  top:-50%;left:-50%;
-  opacity:0;
-  transition:opacity 2s;
-}
-.tesseract-grid.visible{opacity:1}
-.grid-line-h,.grid-line-v{
-  position:absolute;
-  background:rgba(100,180,255,0.08);
-}
-.grid-line-h{
-  width:100%;
-  height:1px;
-  left:0;
-}
-.grid-line-v{
-  width:1px;
-  height:100%;
-  top:0;
-}
-.tesseract-content{
-  position:relative;
-  z-index:2;
-  text-align:center;
-  max-width:700px;
-  padding:0 2rem;
-}
-.tesseract-content h2{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:clamp(2rem,5vw,4rem);
-  font-weight:700;
-  letter-spacing:0.15em;
-  color:#fff;
-  margin-bottom:2rem;
-  text-shadow:0 0 60px rgba(100,180,255,0.3);
-}
-.tesseract-content p{
-  font-size:clamp(0.9rem,1.5vw,1.1rem);
-  line-height:2;
-  color:rgba(180,200,230,0.6);
-  letter-spacing:0.05em;
-}
-.tesseract-lines{
-  position:absolute;
-  width:100%;
-  height:100%;
-  top:0;left:0;
-  pointer-events:none;
-  z-index:1;
-}
-.tesseract-lines .tline{
-  position:absolute;
-  height:1px;
-  background:linear-gradient(90deg,transparent,rgba(100,180,255,0.15),transparent);
-  animation:tlineMove 8s linear infinite;
-}
-@keyframes tlineMove{
-  0%{transform:translateX(-100%)}
-  100%{transform:translateX(100%)}
-}
-
-/* ===== FINALE ===== */
-.finale-section{
-  min-height:100vh;
-  flex-direction:column;
-  padding:0 10%;
-}
-.finale-text{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:clamp(1.8rem,5vw,4rem);
-  font-weight:700;
-  text-align:center;
-  color:#fff;
-  letter-spacing:0.1em;
-  line-height:1.5;
-  opacity:0;
-  transform:translateY(40px);
-  transition:all 2s cubic-bezier(0.16,1,0.3,1);
-}
-.finale-text.visible{
-  opacity:1;
-  transform:translateY(0);
-}
-.finale-sub{
-  margin-top:3rem;
-  font-size:clamp(0.8rem,1.5vw,1rem);
-  letter-spacing:0.5em;
-  text-transform:uppercase;
-  color:rgba(180,200,255,0.3);
-  opacity:0;
-  transition:opacity 2s 0.5s;
-}
-.finale-sub.visible{opacity:1}
-
-/* ===== DUST PARTICLES ===== */
-.dust-layer{
-  position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  z-index:2;
-  pointer-events:none;
-}
-
-/* ===== HORIZONTAL DIVIDER ===== */
-.divider{
-  width:100%;
-  height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);
-  margin:0 auto;
-}
-
-/* ===== RESPONSIVE ===== */
-@media(max-width:768px){
-  .planet-info{
-    position:relative;
-    right:auto;top:auto;
-    transform:none;
-    text-align:center;
-    margin-top:2rem;
-    padding:0 2rem;
-  }
-  .planet-wrapper{
-    flex-direction:column;
-  }
-  .planet-label{display:none}
-}
-
-/* ===== NEBULA OVERLAY ===== */
-.nebula-overlay{
-  position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  z-index:0;
-  pointer-events:none;
-  opacity:0.4;
-  background:
-    radial-gradient(ellipse at 20% 50%,rgba(40,20,80,0.4) 0%,transparent 50%),
-    radial-gradient(ellipse at 80% 20%,rgba(20,40,80,0.3) 0%,transparent 50%),
-    radial-gradient(ellipse at 60% 80%,rgba(60,20,40,0.2) 0%,transparent 50%);
-}
-
-/* ===== PROGRESS BAR ===== */
-.progress-bar{
-  position:fixed;
-  top:0;left:0;
-  width:0%;
-  height:2px;
-  background:linear-gradient(90deg,rgba(100,180,255,0.8),rgba(255,200,100,0.8));
-  z-index:100;
-  transition:width 0.1s linear;
-  box-shadow:0 0 10px rgba(100,180,255,0.5);
-}
-
-/* ===== NAV DOTS ===== */
-.nav-dots{
-  position:fixed;
-  right:20px;
-  top:50%;
-  transform:translateY(-50%);
-  z-index:50;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
-.nav-dot{
-  width:6px;height:6px;
-  border-radius:50%;
-  background:rgba(255,255,255,0.2);
-  cursor:pointer;
-  transition:all 0.3s;
-}
-.nav-dot.active{
-  background:rgba(255,255,255,0.8);
-  box-shadow:0 0 10px rgba(255,255,255,0.3);
-  transform:scale(1.5);
-}
-@media(max-width:768px){
-  .nav-dots{right:10px;gap:8px}
-  .nav-dot{width:4px;height:4px}
+@media(prefers-reduced-motion:reduce){
+.hint{display:none}
+.calc-anim{transition:none;transform:none;opacity:1}
+.result-card.pulse{animation:none}
 }
 </style>
 </head>
 <body>
+<div id="scene" aria-hidden="true"></div>
 
-<div class="progress-bar" id="progressBar"></div>
-
-<canvas id="starfield"></canvas>
-<div class="nebula-overlay" id="nebulaOverlay"></div>
-<canvas class="dust-layer" id="dustCanvas"></canvas>
-
-<div class="nav-dots" id="navDots"></div>
-
-<div class="parallax-container" id="parallaxContainer">
-
-  <!-- HERO -->
-  <section class="section hero" data-section="0">
-    <h1 class="hero-title" id="heroTitle">BEYOND<br>THE STARS</h1>
-    <p class="hero-sub">A JOURNEY THROUGH THE COSMOS</p>
-    <div class="scroll-indicator">
-      <span>Scroll to explore</span>
-      <div class="scroll-line"></div>
-    </div>
-  </section>
-
-  <!-- QUOTE 1 -->
-  <section class="section quote-section" data-section="1">
-    <p class="quote-text" data-reveal>"We used to look up at the sky and wonder<br>our place in the stars."</p>
-    <p class="quote-attr" data-reveal>— COOPER</p>
-  </section>
-
-  <!-- WORMHOLE -->
-  <section class="section wormhole-section" data-section="2">
-    <canvas class="wormhole-canvas" id="wormholeCanvas"></canvas>
-    <div class="wormhole-text">
-      <h2 id="wormholeTitle">THE PASSAGE</h2>
-      <p id="wormholeSub">A fold in the fabric of spacetime — a gateway to another galaxy, another hope for humanity.</p>
-    </div>
-  </section>
-
-  <!-- QUOTE 2 -->
-  <section class="section quote-section" data-section="3">
-    <p class="quote-text" data-reveal>"Mankind was born on Earth.<br>It was never meant to die here."</p>
-    <p class="quote-attr" data-reveal>— COOPER</p>
-  </section>
-
-  <!-- PLANET -->
-  <section class="section planet-section" data-section="4">
-    <div class="planet-wrapper">
-      <img class="planet-img" id="planetImg" data-reveal src="" alt="Planet">
-      <div class="planet-ring" id="planetRing" data-reveal></div>
-      <div class="planet-info">
-        <h3>MILLER'S WORLD</h3>
-        <p>A water world orbiting close to Gargantua. Here, one hour equals seven years on Earth. Time itself bends under the weight of gravity.</p>
-      </div>
-      <div class="planet-label">HORIZON</div>
-    </div>
-  </section>
-
-  <!-- BLACK HOLE -->
-  <section class="section blackhole-section" data-section="5">
-    <div class="blackhole-wrapper">
-      <canvas class="blackhole-canvas" id="blackholeCanvas"></canvas>
-      <div class="blackhole-text">
-        <h2 id="bhTitle">GARGANTUA</h2>
-        <p class="bh-sub" id="bhSub">THE SINGULARITY</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- QUOTE 3 -->
-  <section class="section quote-section" data-section="6">
-    <p class="quote-text" data-reveal>"We are the answer<br>to the question<br>the universe has been asking<br>all along."</p>
-    <p class="quote-attr" data-reveal>— DR. BRAND</p>
-  </section>
-
-  <!-- TESSERACT -->
-  <section class="section tesseract-section" data-section="7">
-    <div class="tesseract-wrapper">
-      <div class="tesseract-grid" id="tesseractGrid" data-reveal></div>
-      <div class="tesseract-lines" id="tesseractLines"></div>
-      <div class="tesseract-content">
-        <h2>THE TESSERACT</h2>
-        <p>Within the singularity, time becomes a physical dimension. Past, present, and future exist simultaneously — an infinite library of moments stretching in every direction.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- FINALE -->
-  <section class="section finale-section" data-section="8">
-    <p class="finale-text" data-reveal>DO NOT GO GENTLE<br>INTO THAT GOOD NIGHT</p>
-    <p class="finale-sub" data-reveal>RAGE, RAGE AGAINST THE DYING OF THE LIGHT</p>
-  </section>
-
+<section class="hero" id="hero">
+<div class="hero-text" id="heroText">
+<h1>PlanetOS</h1>
+<p>Scroll to see how rising CO₂ affects oceans, ice, and fire, then estimate your footprint.</p>
+<p class="hint">Scroll ↓</p>
 </div>
+</section>
 
-<script>
-// ===== STARFIELD =====
-const starCanvas = document.getElementById('starfield');
-const starCtx = starCanvas.getContext('2d');
-let stars = [];
-const STAR_LAYERS = 4;
-const STAR_COUNTS = [200, 150, 80, 30];
-const STAR_SPEEDS = [0.02, 0.05, 0.1, 0.2];
-const STAR_SIZES = [0.5, 1, 1.5, 2.5];
+<section class="transition" id="transition">
+<div class="transition-sticky">
+<div class="transition-tint" id="tint"></div>
+<div class="transition-vignette" id="vignette"></div>
+<p class="transition-hint" id="transitionHint">CO₂ doesn't just warm the air. It changes the ocean too.</p>
+</div>
+</section>
 
-function initStars() {
-  starCanvas.width = window.innerWidth;
-  starCanvas.height = window.innerHeight;
-  stars = [];
-  for (let layer = 0; layer < STAR_LAYERS; layer++) {
-    for (let i = 0; i < STAR_COUNTS[layer]; i++) {
-      stars.push({
-        x: Math.random() * starCanvas.width,
-        y: Math.random() * starCanvas.height,
-        size: STAR_SIZES[layer] * (0.5 + Math.random() * 0.5),
-        layer,
-        twinkle: Math.random() * Math.PI * 2,
-        twinkleSpeed: 0.01 + Math.random() * 0.03,
-        baseAlpha: 0.3 + Math.random() * 0.7,
-        color: Math.random() > 0.85 ? 
-          `hsl(${200 + Math.random() * 40}, 60%, 80%)` : 
-          Math.random() > 0.9 ? 
-          `hsl(${30 + Math.random() * 20}, 50%, 85%)` : 
-          '#fff'
-      });
-    }
-  }
+<section class="reef" id="reef">
+<div class="reef-sticky" id="reefSticky">
+<img class="reef-layer layer-bg" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/12c893896-90c6-4b90-ada7-0cc76498844e.png" alt="" loading="lazy" decoding="async">
+<img class="reef-layer layer-mid" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/12c893896-90c6-4b90-ada7-0cc76498844e.png" alt="" loading="lazy" decoding="async" style="object-position:50% 60%">
+<img class="reef-layer layer-midfg" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/12c893896-90c6-4b90-ada7-0cc76498844e.png" alt="" loading="lazy" decoding="async" style="object-position:50% 75%">
+<img class="reef-layer layer-fg" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/12c893896-90c6-4b90-ada7-0cc76498844e.png" alt="" loading="lazy" decoding="async" style="object-position:50% 90%">
+<div class="reef-fog" id="reefFog"></div>
+<div class="reef-copy" id="reefCopy">
+<h2>Oceans: Warming and Acidification</h2>
+<p>Heat stress and acidity can weaken coral reefs over time.</p>
+</div>
+<div class="bubbles">
+<div class="bubble-col"><div class="bubble" id="bubbleLeft"><div class="bubble-inner"><div class="bubble-media"><img src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/14f826da3-beaf-4830-ba1f-784254f47cdf.png" alt="Coral bleaching" loading="lazy" decoding="async"></div><div class="bubble-text"><h3>Heat stress → Bleaching</h3><p>Warm spells push corals into stress, turning reefs white and fragile.</p><a class="bubble-link" href="https://oceanservice.noaa.gov/facts/coral_bleach.html" target="_blank" rel="noopener">Learn more</a></div></div></div></div>
+<div class="bubble-col"><div class="bubble" id="bubbleMid"><div class="bubble-inner"><div class="bubble-media"><img src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/1bfb7d8a7-420d-4d4c-bef8-91c949d7d8fd.png" alt="Ocean acidification" loading="lazy" decoding="async"></div><div class="bubble-text"><h3>CO₂ → Ocean acidification</h3><p>As the ocean absorbs extra CO₂, carbonate becomes less available for corals.</p><a class="bubble-link" href="https://oceanservice.noaa.gov/facts/acidification.html" target="_blank" rel="noopener">Learn more</a></div></div></div></div>
+<div class="bubble-col"><div class="bubble" id="bubbleRight"><div class="bubble-inner"><div class="bubble-media"><img src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/1243c3000-8bc2-46b5-b295-1b391fdeb349.png" alt="Reef damage" loading="lazy" decoding="async"></div><div class="bubble-text"><h3>No time to recover</h3><p>Repeated stress reduces reef resilience, so damage stacks faster than ecosystems rebuild.</p><a class="bubble-link" href="https://www.ipcc.ch/report/ar6/wg2/chapter/chapter-3/" target="_blank" rel="noopener">Learn more</a></div></div></div></div>
+</div>
+</div>
+</section>
+
+<section class="ice" id="ice">
+<div class="ice-sticky" id="iceSticky">
+<div class="ice-stage">
+<img class="ice-layer ice-bg" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/1040d9ca0-0df5-4e1c-aa53-2596b8a0b492.png" alt="" loading="lazy" decoding="async">
+<img class="ice-layer ice-mid" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/10ad70daf-4f70-4051-8d7e-16deb77a6684.png" alt="" loading="lazy" decoding="async">
+<img class="ice-layer ice-fg" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/100aa7a6f-ee8e-48b3-b539-f7144f16d135.png" alt="" loading="lazy" decoding="async">
+</div>
+<div class="ice-fog" id="iceFog"></div>
+<div class="ice-copy" id="iceCopy">
+<h2>Ice: Melting and Sea Level Rise</h2>
+<p>Warming air and oceans accelerate ice loss worldwide.</p>
+</div>
+<div class="bubbles">
+<div class="bubble-col"><div class="bubble" id="iceBubbleLeft"><div class="bubble-inner"><div class="bubble-media"><img src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/10ad70daf-4f70-4051-8d7e-16deb77a6684.png" alt="Arctic warming" loading="lazy" decoding="async"></div><div class="bubble-text"><h3>Warming from above</h3><p>CO₂ traps heat, and the Arctic warms especially fast, accelerating melt.</p><a class="bubble-link" href="https://science.nasa.gov/earth/earth-observatory/arctic-amplification-81214/" target="_blank" rel="noopener">Learn more</a></div></div></div></div>
+<div class="bubble-col"><div class="bubble" id="iceBubbleMid"><div class="bubble-inner"><div class="bubble-media"><img src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/100aa7a6f-ee8e-48b3-b539-f7144f16d135.png" alt="Ice shelf melting" loading="lazy" decoding="async"></div><div class="bubble-text"><h3>Melting from below</h3><p>Warmer ocean water undercuts ice shelves, letting glaciers speed up.</p><a class="bubble-link" href="https://nsidc.org/learn/parts-cryosphere/ice-shelves/science-ice-shelves" target="_blank" rel="noopener">Learn more</a></div></div></div></div>
+<div class="bubble-col"><div class="bubble" id="iceBubbleRight"><div class="bubble-inner"><div class="bubble-media"><img src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/164733a9a-af15-4a71-8632-e72e69b80e80.png" alt="Sea level rise" loading="lazy" decoding="async"></div><div class="bubble-text"><h3>Global ripple effects</h3><p>Ice-sheet loss contributes to sea level rise and long-term coastal risks.</p><a class="bubble-link" href="https://science.nasa.gov/earth/explore/earth-indicators/ice-sheets/" target="_blank" rel="noopener">Learn more</a></div></div></div></div>
+</div>
+</div>
+</section>
+
+<section class="forest" id="forest">
+<div class="forest-sticky" id="forestSticky">
+<div class="forest-stage">
+<img class="forest-layer forest-bg" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/14dfb6f24-3074-4ba7-b232-0a0ba0229313.png" alt="" loading="lazy" decoding="async">
+<img class="forest-layer forest-backmid" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/14dfb6f24-3074-4ba7-b232-0a0ba0229313.png" alt="" loading="lazy" decoding="async" style="object-position:50% 40%">
+<img class="forest-layer forest-mid" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/14dfb6f24-3074-4ba7-b232-0a0ba0229313.png" alt="" loading="lazy" decoding="async" style="object-position:50% 50%">
+<img class="forest-layer forest-midfg" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/14dfb6f24-3074-4ba7-b232-0a0ba0229313.png" alt="" loading="lazy" decoding="async" style="object-position:50% 60%">
+<img class="forest-layer forest-frontmid" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/14dfb6f24-3074-4ba7-b232-0a0ba0229313.png" alt="" loading="lazy" decoding="async" style="object-position:50% 70%">
+<img class="forest-layer forest-fg" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/14dfb6f24-3074-4ba7-b232-0a0ba0229313.png" alt="" loading="lazy" decoding="async" style="object-position:50% 80%">
+</div>
+<div class="forest-fog" id="forestFog"></div>
+<div class="forest-copy" id="forestCopy">
+<h2>Fire: Hotter, Drier Conditions</h2>
+<p>Warming increases drought risk and extends fire seasons.</p>
+</div>
+<div class="bubbles">
+<div class="bubble-col"><div class="bubble" id="forestBubbleLeft"><div class="bubble-inner"><div class="bubble-media"><img src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/1aa2a4476-af5a-4cdb-b097-0755499a9a1f.png" alt="Drought conditions" loading="lazy" decoding="async"></div><div class="bubble-text"><h3>Heat dries the fuel</h3><p>Hotter conditions dry out soils and vegetation, making fires more intense.</p><a class="bubble-link" href="https://www.noaa.gov/noaa-wildfire/wildfire-climate-connection" target="_blank" rel="noopener">Learn more</a></div></div></div></div>
+<div class="bubble-col"><div class="bubble" id="forestBubbleMid"><div class="bubble-inner"><div class="bubble-media"><img src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/1f84079de-beed-461f-a8bb-e19de94ed796.png" alt="Extended fire season" loading="lazy" decoding="async"></div><div class="bubble-text"><h3>Longer fire seasons</h3><p>Warming and drought lengthen the window when fuels are dry enough to burn.</p><a class="bubble-link" href="https://www.climatehubs.usda.gov/hubs/northwest/topic/climate-change-and-wildfire-idaho-oregon-and-washington" target="_blank" rel="noopener">Learn more</a></div></div></div></div>
+<div class="bubble-col"><div class="bubble" id="forestBubbleRight"><div class="bubble-inner"><div class="bubble-media"><img src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/15eadf425-e11a-4e42-82f6-3136c55c4bbc.png" alt="Extreme fire spread" loading="lazy" decoding="async"></div><div class="bubble-text"><h3>Extreme ignition + spread</h3><p>Hot, dry, windy weather increases ignition risk and helps fires spread rapidly.</p><a class="bubble-link" href="https://www.noaa.gov/stories/ask-scientist-how-can-weather-spark-and-spread-wildfires" target="_blank" rel="noopener">Learn more</a></div></div></div></div>
+</div>
+</div>
+</section>
+
+<div class="tool-bridge"></div>
+
+<section class="calculator" id="calculator">
+<div class="calculator-sticky">
+<div class="calc-shell">
+<div class="calc-head calc-anim" style="--d:0ms">
+<h2>Your Carbon Footprint</h2>
+<p class="calc-sub">Adjust a few habits. See an estimated annual CO₂ change.</p>
+<button class="calc-reset" id="calcReset" type="button">Reset to typical</button>
+</div>
+<div class="calc-results calc-anim" style="--d:80ms">
+<div class="result-card" id="resultCard">
+<p class="result-label">Estimated annual reduction</p>
+<div class="result-big">
+<span class="result-number" id="co2Big">0</span>
+<span class="result-unit">kg CO₂ / year</span>
+</div>
+<button class="calc-link" id="calcHowBtn" type="button">How we estimate this</button>
+<div class="equiv">
+<div class="equiv-row" id="treesRow">≈ 0 trees grown for a year</div>
+<div class="equiv-row" id="kmRow">≈ 0 km of driving avoided</div>
+</div>
+<button class="calc-breakdown-btn" id="calcBreakdownBtn" type="button" aria-expanded="false">Show breakdown</button>
+<div class="breakdown" id="calcBreakdown" aria-hidden="true">
+<div class="breakdown-row"><span>Diet</span><span id="calcDiet">0 kg</span></div>
+<div class="breakdown-row"><span>Transport</span><span id="calcTransport">0 kg</span></div>
+<div class="breakdown-row"><span>Cooling</span><span id="calcCooling">0 kg</span></div>
+</div>
+</div>
+</div>
+<div class="calc-settings calc-anim" style="--d:160ms">
+<div class="setting-card">
+<div class="setting-top"><span class="setting-label">Meat-free meals per week</span><span class="setting-value" id="mealsVal">0 / 21</span></div>
+<input type="range" id="mealsInput" min="0" max="21" value="0" step="1">
+<p class="setting-help" id="mealsHelp">No change from baseline.</p>
+</div>
+<div class="setting-card">
+<div class="setting-top"><span class="setting-label">Public transport commutes per week</span><span class="setting-value" id="commutesVal">0 trips/week</span></div>
+<input type="range" id="commutesInput" min="0" max="14" value="0" step="1">
+<p class="setting-help" id="commutesHelp">Replacing car rides has a big impact.</p>
+</div>
+<div class="setting-card">
+<div class="setting-top"><span class="setting-label">Average home AC temperature</span><span class="setting-value" id="acVal">24°C</span></div>
+<input type="range" id="acInput" min="18" max="30" value="24" step="1">
+<p class="setting-help" id="acHelp">Higher temperature usually reduces energy use.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<dialog class="calc-dialog" id="calcDialog">
+<div class="calc-dialog-inner">
+<h3>How we estimate this</h3>
+<p>We use common averages to estimate annual change. Real impact varies by location and energy grid.</p>
+<ul>
+<li><strong>Diet:</strong> fewer meat-based meals tends to reduce emissions.</li>
+<li><strong>Transport:</strong> swapping car trips for public transport can reduce emissions.</li>
+<li><strong>Cooling:</strong> warmer thermostat settings often reduce electricity use.</li>
+</ul>
+<div class="calc-dialog-actions">
+<button class="calc-btn calc-btn--ghost" id="calcCloseBtn" type="button">Close</button>
+</div>
+</div>
+</dialog>
+
+<section class="calc-outro" id="calcOutro">
+<div class="calc-outro-inner">
+<h2 class="calc-anim" style="--d:0ms">Your plan could save <span id="calcOutroBig">0</span> kg CO₂/year.</h2>
+<p class="calc-outro-sub calc-anim" style="--d:80ms">Small weekly habits can add up. Keep exploring, and share what you learn.</p>
+<div class="calc-cta calc-anim" style="--d:160ms">
+<button class="calc-btn calc-btn--solid" id="calcSaveBtn" type="button">Save my plan</button>
+<button class="calc-btn calc-btn--ghost" id="calcShareBtn" type="button">Share this</button>
+<a class="calc-btn calc-btn--ghost" href="#hero">Explore the next action</a>
+</div>
+<p class="calc-toast" id="calcToast" aria-live="polite"></p>
+</div>
+</section>
+
+<footer class="footer-spacer">
+<p class="footer-credit">Made by Enzhi and Qixin</p>
+</footer>
+
+<script type="module">
+import*as THREE from"https://unpkg.com/three@0.161.0/build/three.module.js";
+
+/* ── DOM cache (single lookup) ── */
+const $=id=>document.getElementById(id);
+const heroText=$("heroText"),transitionEl=$("transition"),reefEl=$("reef"),
+iceEl=$("ice"),forestEl=$("forest"),calculatorEl=$("calculator"),
+calcOutroEl=$("calcOutro"),tint=$("tint"),vignette=$("vignette"),
+transitionHint=$("transitionHint"),reefSticky=$("reefSticky"),
+reefFog=$("reefFog"),reefCopy=$("reefCopy"),
+iceSticky=$("iceSticky"),iceFog=$("iceFog"),
+forestSticky=$("forestSticky"),forestFog=$("forestFog"),forestCopy=$("forestCopy");
+
+const reefLayers={bg:document.querySelector(".layer-bg"),mid:document.querySelector(".layer-mid"),midfg:document.querySelector(".layer-midfg"),fg:document.querySelector(".layer-fg")};
+const bubbles={left:$("bubbleLeft"),mid:$("bubbleMid"),right:$("bubbleRight")};
+const iceLayers={bg:document.querySelector(".ice-bg"),mid:document.querySelector(".ice-mid"),fg:document.querySelector(".ice-fg")};
+const iceBubbles={left:$("iceBubbleLeft"),mid:$("iceBubbleMid"),right:$("iceBubbleRight")};
+const forestLayers={bg:document.querySelector(".forest-bg"),backmid:document.querySelector(".forest-backmid"),mid:document.querySelector(".forest-mid"),midfg:document.querySelector(".forest-midfg"),frontmid:document.querySelector(".forest-frontmid"),fg:document.querySelector(".forest-fg")};
+const forestBubbles={left:$("forestBubbleLeft"),mid:$("forestBubbleMid"),right:$("forestBubbleRight")};
+
+/* Calculator DOM */
+const mealsInput=$("mealsInput"),mealsVal=$("mealsVal"),mealsHelp=$("mealsHelp"),
+commutesInput=$("commutesInput"),commutesVal=$("commutesVal"),commutesHelp=$("commutesHelp"),
+acInput=$("acInput"),acVal=$("acVal"),acHelp=$("acHelp"),
+resultCard=$("resultCard"),co2Big=$("co2Big"),treesRow=$("treesRow"),kmRow=$("kmRow"),
+calcHowBtn=$("calcHowBtn"),calcDialog=$("calcDialog"),calcCloseBtn=$("calcCloseBtn"),
+calcBreakdownBtn=$("calcBreakdownBtn"),calcBreakdown=$("calcBreakdown"),
+calcDiet=$("calcDiet"),calcTransport=$("calcTransport"),calcCooling=$("calcCooling"),
+calcReset=$("calcReset"),calcOutroBig=$("calcOutroBig"),
+calcSaveBtn=$("calcSaveBtn"),calcShareBtn=$("calcShareBtn"),calcToast=$("calcToast");
+
+const reduceMotion=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const isMobile=window.innerWidth<720;
+
+/* ── Math helpers (inlined for perf) ── */
+const clamp01=v=>v<0?0:v>1?1:v;
+const lerp=(a,b,t)=>a+(b-a)*t;
+const easeInOut=t=>t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const easeOut=t=>1-Math.pow(1-t,3);
+const invLerp=(a,b,v)=>clamp01((v-a)/Math.max(1e-6,b-a));
+
+/* ── Color helpers with cache ── */
+const _hexCache=new Map();
+function hexToRgb(hex){
+if(_hexCache.has(hex))return _hexCache.get(hex);
+const h=hex.replace("#","").trim();
+const n=parseInt(h.length===3?h.split("").map(c=>c+c).join(""):h,16);
+const r={r:(n>>16)&255,g:(n>>8)&255,b:n&255};
+_hexCache.set(hex,r);
+return r;
+}
+function rgbToHex({r,g,b}){
+const to=x=>x.toString(16).padStart(2,"0");
+return`#${to(r)}${to(g)}${to(b)}`;
+}
+function lerpColor(a,b,t){
+const A=hexToRgb(a),B=hexToRgb(b);
+return rgbToHex({r:Math.round(lerp(A.r,B.r,t)),g:Math.round(lerp(A.g,B.g,t)),b:Math.round(lerp(A.b,B.b,t))});
 }
 
-let scrollY = 0;
-let targetScrollY = 0;
+/* ── Three.js setup ── */
+const container=$("scene");
+const renderer=new THREE.WebGLRenderer({antialias:!isMobile,alpha:true,powerPreference:"high-performance"});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,isMobile?1.5:2));
+renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.setClearColor(0x000000,0);
+container.appendChild(renderer.domElement);
 
-function drawStars() {
-  starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
-  for (const star of stars) {
-    star.twinkle += star.twinkleSpeed;
-    const alpha = star.baseAlpha * (0.5 + 0.5 * Math.sin(star.twinkle));
-    const parallaxOffset = scrollY * STAR_SPEEDS[star.layer];
-    let y = (star.y + parallaxOffset) % starCanvas.height;
-    if (y < 0) y += starCanvas.height;
-    
-    starCtx.beginPath();
-    starCtx.arc(star.x, y, star.size, 0, Math.PI * 2);
-    starCtx.fillStyle = star.color;
-    starCtx.globalAlpha = alpha;
-    starCtx.fill();
-    
-    if (star.size > 1.5) {
-      starCtx.beginPath();
-      starCtx.arc(star.x, y, star.size * 3, 0, Math.PI * 2);
-      starCtx.fillStyle = star.color;
-      starCtx.globalAlpha = alpha * 0.1;
-      starCtx.fill();
-    }
-  }
-  starCtx.globalAlpha = 1;
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,0.1,200);
+camera.position.set(0,0,isMobile?3.4:2.8);
+
+scene.add(new THREE.AmbientLight(0xffffff,0.55));
+const sun=new THREE.DirectionalLight(0xffffff,1.1);
+sun.position.set(6,3,6);
+scene.add(sun);
+
+const earthGroup=new THREE.Group();
+scene.add(earthGroup);
+
+const earthGeometry=new THREE.SphereGeometry(1,64,64);
+const loader=new THREE.TextureLoader();
+const earthTexture=loader.load("https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/1935f7fd2-0d4d-494f-843a-53eeb6bb2c98.png");
+earthTexture.colorSpace=THREE.SRGBColorSpace;
+const earthMaterial=new THREE.MeshStandardMaterial({map:earthTexture,roughness:0.9,metalness:0.0,transparent:true,opacity:1});
+const earthMesh=new THREE.Mesh(earthGeometry,earthMaterial);
+earthGroup.add(earthMesh);
+
+const glowGeometry=new THREE.SphereGeometry(1.03,64,64);
+const glowMaterial=new THREE.MeshBasicMaterial({color:0x7fbfff,transparent:true,opacity:0.085});
+const glow=new THREE.Mesh(glowGeometry,glowMaterial);
+earthGroup.add(glow);
+
+/* Stars — reduced count on mobile */
+const STAR_COUNT=isMobile?1200:2600;
+const positions=new Float32Array(STAR_COUNT*3);
+for(let i=0;i<STAR_COUNT;i++){
+const u=Math.random(),v=Math.random();
+const theta=2*Math.PI*u,phi=Math.acos(2*v-1),r=60;
+positions[i*3]=r*Math.sin(phi)*Math.cos(theta);
+positions[i*3+1]=r*Math.sin(phi)*Math.sin(theta);
+positions[i*3+2]=r*Math.cos(phi);
+}
+const starsGeom=new THREE.BufferGeometry();
+starsGeom.setAttribute("position",new THREE.Float32BufferAttribute(positions,3));
+const starsMat=new THREE.PointsMaterial({size:0.055,sizeAttenuation:true,transparent:true,opacity:1});
+const starsPoints=new THREE.Points(starsGeom,starsMat);
+scene.add(starsPoints);
+
+/* ── Offsets ── */
+let reefOffsetsPx={bg:0,mid:0,midfg:0,fg:0};
+let iceOffsetsPx={bg:0,mid:0,fg:0};
+let forestOffsetsPx={bg:0,backmid:0,mid:0,midfg:0,frontmid:0,fg:0};
+
+function computeOffsets(){
+const vh=window.innerHeight/100;
+reefOffsetsPx={bg:5*vh,mid:9*vh,midfg:13*vh,fg:18*vh};
+iceOffsetsPx={bg:0,mid:20*vh,fg:60*vh};
+forestOffsetsPx={bg:4*vh,backmid:6*vh,mid:9*vh,midfg:13*vh,frontmid:17*vh,fg:22*vh};
+}
+computeOffsets();
+
+/* ── Section metrics (cached, recomputed on resize) ── */
+const metrics={transition:{start:0,end:1,range:1},reef:{start:0,end:1,range:1},ice:{start:0,end:1,range:1},forest:{start:0,end:1,range:1},calculator:{start:0,end:1,range:1},driver:{start:0,end:1,range:1}};
+
+function computeSectionMetrics(el){
+const start=el.offsetTop,end=start+el.offsetHeight-window.innerHeight;
+return{start,end,range:Math.max(1,end-start)};
+}
+function computeMetrics(){
+metrics.transition=computeSectionMetrics(transitionEl);
+metrics.reef=computeSectionMetrics(reefEl);
+metrics.ice=computeSectionMetrics(iceEl);
+metrics.forest=computeSectionMetrics(forestEl);
+metrics.calculator=computeSectionMetrics(calculatorEl);
+metrics.driver.start=0;
+metrics.driver.end=metrics.transition.end;
+metrics.driver.range=Math.max(1,metrics.driver.end-metrics.driver.start);
+}
+computeMetrics();
+
+function sectionProgress(m){return clamp01((scrollY-m.start)/m.range)}
+
+/* ── Scroll state (read once per frame) ── */
+let scrollY=0;
+let needsUpdate=true;
+
+function onScroll(){scrollY=window.scrollY;needsUpdate=true}
+window.addEventListener("scroll",onScroll,{passive:true});
+
+/* ── Resize (debounced) ── */
+let resizeTimer=0;
+window.addEventListener("resize",()=>{
+clearTimeout(resizeTimer);
+resizeTimer=setTimeout(()=>{
+renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,isMobile?1.5:2));
+camera.aspect=window.innerWidth/window.innerHeight;
+camera.position.set(0,0,window.innerWidth<720?3.4:2.8);
+camera.updateProjectionMatrix();
+computeOffsets();
+computeMetrics();
+},100);
+},{passive:true});
+
+window.addEventListener("load",()=>{computeOffsets();computeMetrics()},{passive:true});
+
+/* ── UI update helpers ── */
+function setDomOpacity(el,v){if(el)el.style.opacity=String(v)}
+function setLayersOpacity(layers,v){for(const k in layers){const el=layers[k];if(el)el.style.opacity=String(v)}}
+
+/* ── Transition ── */
+function updateTransitionUI(p){
+const heroFade=1-easeOut(invLerp(0.0,0.25,p));
+heroText.style.opacity=String(heroFade);
+heroText.style.transform=`translateY(${lerp(0,-10,1-heroFade)}px)`;
+earthGroup.scale.setScalar(lerp(1.0,1.15,easeOut(invLerp(0.0,0.4,p))));
+const b=invLerp(0.4,0.8,p);
+setDomOpacity(tint,lerp(0,0.75,easeInOut(b)));
+setDomOpacity(vignette,lerp(0.0,0.55,easeInOut(b)));
+const c=invLerp(0.8,1.0,p);
+const earthAlpha=1-easeOut(c);
+earthMaterial.opacity=earthAlpha;
+glowMaterial.opacity=0.085*earthAlpha;
+starsMat.opacity=lerp(1.0,0.0,easeOut(invLerp(0.7,1.0,p)));
+setDomOpacity(transitionHint,easeOut(invLerp(0.86,1.0,p)));
 }
 
-// ===== DUST PARTICLES =====
-const dustCanvas = document.getElementById('dustCanvas');
-const dustCtx = dustCanvas.getContext('2d');
-let dustParticles = [];
-
-function initDust() {
-  dustCanvas.width = window.innerWidth;
-  dustCanvas.height = window.innerHeight;
-  dustParticles = [];
-  for (let i = 0; i < 60; i++) {
-    dustParticles.push({
-      x: Math.random() * dustCanvas.width,
-      y: Math.random() * dustCanvas.height,
-      size: 0.5 + Math.random() * 2,
-      speedX: (Math.random() - 0.5) * 0.3,
-      speedY: -0.1 - Math.random() * 0.3,
-      alpha: 0.1 + Math.random() * 0.2,
-      parallaxFactor: 0.05 + Math.random() * 0.1
-    });
-  }
+/* ── Bubbles ── */
+function animateBubbles(elMap,bubbleP,speeds){
+const t=easeInOut(bubbleP);
+const fadeIn=easeOut(invLerp(0.0,0.10,bubbleP));
+const fadeOut=1-easeOut(invLerp(0.92,1.0,bubbleP));
+const opacity=fadeIn*fadeOut;
+const apply=(el,speed)=>{
+if(!el)return;
+const p=clamp01(t*speed);
+el.style.transform=`translateY(${lerp(130,-130,p)}vh)`;
+el.style.opacity=String(opacity);
+};
+apply(elMap.left,speeds.left);
+apply(elMap.mid,speeds.mid);
+apply(elMap.right,speeds.right);
 }
 
-function drawDust() {
-  dustCtx.clearRect(0, 0, dustCanvas.width, dustCanvas.height);
-  for (const p of dustParticles) {
-    p.x += p.speedX;
-    p.y += p.speedY;
-    if (p.x < 0) p.x = dustCanvas.width;
-    if (p.x > dustCanvas.width) p.x = 0;
-    if (p.y < 0) p.y = dustCanvas.height;
-    
-    const offsetY = scrollY * p.parallaxFactor;
-    let drawY = (p.y + offsetY) % dustCanvas.height;
-    if (drawY < 0) drawY += dustCanvas.height;
-    
-    dustCtx.beginPath();
-    dustCtx.arc(p.x, drawY, p.size, 0, Math.PI * 2);
-    dustCtx.fillStyle = `rgba(180, 200, 255, ${p.alpha})`;
-    dustCtx.fill();
-  }
+/* ── Reef ── */
+function updateReefScene(){
+const yLocal=scrollY-metrics.reef.start;
+const settlePx=0.35*window.innerHeight;
+const bubblePx=2.6*window.innerHeight;
+const maxLocal=metrics.reef.range;
+const exitPx=Math.max(1,maxLocal-settlePx-bubblePx);
+const settleT=easeInOut(clamp01(yLocal/settlePx));
+
+reefLayers.bg.style.transform=`translateY(${lerp(reefOffsetsPx.bg,0,settleT)}px)`;
+reefLayers.mid.style.transform=`translateY(${lerp(reefOffsetsPx.mid,0,settleT)}px)`;
+reefLayers.midfg.style.transform=`translateY(${lerp(reefOffsetsPx.midfg,0,settleT)}px)`;
+reefLayers.fg.style.transform=`translateY(${lerp(reefOffsetsPx.fg,0,settleT)}px)`;
+
+const top=lerpColor("#47d6ea","#0a5f6c",settleT);
+const mid=lerpColor("#0a5f6c","#06404a",settleT);
+const bot=lerpColor("#042d34","#02161b",settleT);
+reefSticky.style.background=`linear-gradient(to bottom,${top} 0%,${mid} 55%,${bot} 100%)`;
+reefFog.style.opacity=String(lerp(0.0,0.55,settleT));
+
+const bubbleP=clamp01((yLocal-settlePx)/bubblePx);
+animateBubbles(bubbles,bubbleP,{left:0.8,mid:1.3,right:1.05});
+
+const exitP=clamp01((yLocal-(settlePx+bubblePx))/exitPx);
+if(exitP>0){
+const a=1-easeOut(exitP);
+setLayersOpacity(reefLayers,a);
+if(reefCopy){reefCopy.style.opacity=String(0.92*a);reefCopy.style.transform=`translateX(-50%) translateY(${lerp(0,-18,easeOut(exitP))}px)`}
+reefSticky.style.background="#02161b";
+reefFog.style.opacity=String(lerp(0.55,0.8,easeOut(exitP)));
+}else{
+setLayersOpacity(reefLayers,1);
+if(reefCopy){reefCopy.style.opacity="0.92";reefCopy.style.transform="translateX(-50%)"}
+}
 }
 
-// ===== WORMHOLE =====
-const whCanvas = document.getElementById('wormholeCanvas');
-const whCtx = whCanvas.getContext('2d');
-let whTime = 0;
+/* ── Ice ── */
+function updateIceScene(){
+const yLocal=scrollY-metrics.ice.start;
+const vh=window.innerHeight;
+const skyPx=0.40*vh;
+const revealStartPx=0.15*vh;
+const settlePx=0.55*vh;
+const bubblePx=2.6*vh;
+const maxLocal=metrics.ice.range;
+const exitStart=revealStartPx+settlePx+bubblePx;
+const exitPx=Math.max(1,maxLocal-exitStart);
 
-function resizeWormhole() {
-  whCanvas.width = window.innerWidth;
-  whCanvas.height = window.innerHeight;
+const skyT=easeInOut(clamp01(yLocal/skyPx));
+const skyTop=lerpColor("#02161b","#d9f6ff",skyT);
+const skyMid=lerpColor("#02161b","#93d7f0",skyT);
+const skyBot=lerpColor("#02161b","#0b5b73",skyT);
+
+const revealT=easeOut(clamp01((yLocal-revealStartPx)/Math.max(1e-6,0.28*vh)));
+setLayersOpacity(iceLayers,revealT);
+
+const settleRaw=clamp01((yLocal-revealStartPx)/Math.max(1e-6,settlePx));
+const baseT=easeInOut(settleRaw);
+const fgT=Math.pow(baseT,0.58);
+
+iceLayers.bg.style.transform="translateY(0px)";
+iceLayers.mid.style.transform=`translateY(${lerp(iceOffsetsPx.mid,0,baseT)}px)`;
+const fgScale=lerp(1.55,1.35,baseT);
+const fgY=lerp(iceOffsetsPx.fg,0,fgT);
+iceLayers.fg.style.transform=`translateY(${fgY}px) scale(${fgScale})`;
+
+const bubbleP=clamp01((yLocal-(revealStartPx+settlePx))/bubblePx);
+animateBubbles(iceBubbles,bubbleP,{left:0.8,mid:1.3,right:1.05});
+
+const exitP=clamp01((yLocal-exitStart)/exitPx);
+const exitT=easeOut(exitP);
+const iceAlpha=1-exitT;
+const forestBase="#bfe9ff";
+const outTop=lerpColor(skyTop,forestBase,exitT);
+const outMid=lerpColor(skyMid,forestBase,exitT);
+const outBot=lerpColor(skyBot,forestBase,exitT);
+iceSticky.style.background=`linear-gradient(to bottom,${outTop} 0%,${outMid} 55%,${outBot} 100%)`;
+setLayersOpacity(iceLayers,revealT*iceAlpha);
+setDomOpacity(iceFog,lerp(0.02,0.22,skyT)*iceAlpha);
 }
 
-function drawWormhole(progress) {
-  whCtx.clearRect(0, 0, whCanvas.width, whCanvas.height);
-  const cx = whCanvas.width / 2;
-  const cy = whCanvas.height / 2;
-  whTime += 0.005;
-  
-  const intensity = Math.min(1, progress * 2);
-  
-  // Concentric rings
-  for (let i = 0; i < 40; i++) {
-    const radius = 50 + i * 15 + Math.sin(whTime + i * 0.3) * 10;
-    const alpha = (1 - i / 40) * 0.15 * intensity;
-    const hue = 200 + i * 2 + whTime * 20;
-    
-    whCtx.beginPath();
-    whCtx.arc(cx, cy, radius * intensity, 0, Math.PI * 2);
-    whCtx.strokeStyle = `hsla(${hue}, 70%, 60%, ${alpha})`;
-    whCtx.lineWidth = 1.5;
-    whCtx.stroke();
-  }
-  
-  // Inner glow
-  const grd = whCtx.createRadialGradient(cx, cy, 0, cx, cy, 200 * intensity);
-  grd.addColorStop(0, `rgba(150, 200, 255, ${0.2 * intensity})`);
-  grd.addColorStop(0.5, `rgba(80, 120, 200, ${0.05 * intensity})`);
-  grd.addColorStop(1, 'transparent');
-  whCtx.fillStyle = grd;
-  whCtx.fillRect(0, 0, whCanvas.width, whCanvas.height);
-  
-  // Light streaks
-  for (let i = 0; i < 20; i++) {
-    const angle = (i / 20) * Math.PI * 2 + whTime;
-    const len = 100 + Math.sin(whTime * 2 + i) * 50;
-    const innerR = 30 * intensity;
-    const outerR = (innerR + len) * intensity;
-    
-    whCtx.beginPath();
-    whCtx.moveTo(
-      cx + Math.cos(angle) * innerR,
-      cy + Math.sin(angle) * innerR
-    );
-    whCtx.lineTo(
-      cx + Math.cos(angle) * outerR,
-      cy + Math.sin(angle) * outerR
-    );
-    whCtx.strokeStyle = `rgba(180, 210, 255, ${0.1 * intensity})`;
-    whCtx.lineWidth = 1;
-    whCtx.stroke();
-  }
+/* ─ Forest ── */
+function updateForestScene(){
+const yLocal=scrollY-metrics.forest.start;
+const vh=window.innerHeight;
+const base="#bfe9ff",skyTop="#d9f6ff",skyMid="#a9e6ff",skyBot="#78c7ef";
+const revealStartPx=0.10*vh,revealPx=0.28*vh,settlePx=0.70*vh,bubblePx=2.6*vh;
+const maxLocal=metrics.forest.range;
+const exitStart=revealStartPx+settlePx+bubblePx;
+const exitPx=Math.max(1,maxLocal-exitStart);
+const exitP=clamp01((yLocal-exitStart)/exitPx);
+const exitT=easeOut(exitP);
+const forestAlpha=1-exitT;
+
+const bgT=easeInOut(clamp01(yLocal/(0.55*vh)));
+const top0=lerpColor(base,skyTop,bgT),mid0=lerpColor(base,skyMid,bgT),bot0=lerpColor(base,skyBot,bgT);
+const white="#ffffff";
+const top=lerpColor(top0,white,exitT),mid=lerpColor(mid0,white,exitT),bot=lerpColor(bot0,white,exitT);
+forestSticky.style.background=`linear-gradient(to bottom,${top} 0%,${mid} 55%,${bot} 100%)`;
+setDomOpacity(forestFog,lerp(0.0,0.22,bgT)*forestAlpha);
+
+const revealT=easeOut(clamp01((yLocal-revealStartPx)/Math.max(1e-6,revealPx)));
+setLayersOpacity(forestLayers,revealT*forestAlpha);
+
+const settleT=easeInOut(clamp01((yLocal-revealStartPx)/Math.max(1e-6,settlePx)));
+forestLayers.bg.style.transform=`translateY(${lerp(forestOffsetsPx.bg,0,settleT)}px)`;
+forestLayers.backmid.style.transform=`translateY(${lerp(forestOffsetsPx.backmid,0,settleT)}px)`;
+forestLayers.mid.style.transform=`translateY(${lerp(forestOffsetsPx.mid,0,settleT)}px)`;
+forestLayers.midfg.style.transform=`translateY(${lerp(forestOffsetsPx.midfg,0,settleT)}px)`;
+forestLayers.frontmid.style.transform=`translateY(${lerp(forestOffsetsPx.frontmid,0,settleT)}px)`;
+forestLayers.fg.style.transform=`translateY(${lerp(forestOffsetsPx.fg,0,settleT)}px)`;
+
+const bubbleStart=revealStartPx+settlePx;
+const bubbleP=clamp01((yLocal-bubbleStart)/bubblePx);
+animateBubbles(forestBubbles,bubbleP,{left:0.8,mid:1.3,right:1.05});
+
+if(forestCopy){
+const copyIn=easeOut(revealT);
+const yIn=lerp(10,0,copyIn),yOut=lerp(0,-18,exitT);
+forestCopy.style.opacity=String(0.92*revealT*forestAlpha);
+forestCopy.style.transform=`translateX(-50%) translateY(${yIn+yOut}px)`;
+}
 }
 
-// ===== BLACK HOLE =====
-const bhCanvas = document.getElementById('blackholeCanvas');
-const bhCtx = bhCanvas.getContext('2d');
-let bhTime = 0;
+/* ── Calculator engine ── */
+const engine={baselineMeals:2,baselineCommutes:2,baselineAC:24,kgPerMeal:45,kgPerCommute:120,kgPerDeg:90};
+let lastResult={total:0,diet:0,transport:0,cooling:0};
 
-function resizeBlackhole() {
-  bhCanvas.width = window.innerWidth;
-  bhCanvas.height = window.innerHeight;
+function computeImpact(meals,commutes,ac){
+const diet=(meals-engine.baselineMeals)*engine.kgPerMeal;
+const transport=(commutes-engine.baselineCommutes)*engine.kgPerCommute;
+const cooling=(engine.baselineAC-ac)*engine.kgPerDeg;
+const total=Math.max(0,Math.round(diet+transport+cooling));
+return{total,diet:Math.max(0,Math.round(diet)),transport:Math.max(0,Math.round(transport)),cooling:Math.max(0,Math.round(cooling))};
 }
 
-function drawBlackHole(progress) {
-  bhCtx.clearRect(0, 0, bhCanvas.width, bhCanvas.height);
-  const cx = bhCanvas.width / 2;
-  const cy = bhCanvas.height / 2;
-  bhTime += 0.003;
-  
-  const intensity = Math.min(1, progress * 1.5);
-  const bhRadius = Math.min(cx, cy) * 0.2 * intensity;
-  
-  // Accretion disk
-  for (let ring = 0; ring < 60; ring++) {
-    const r = bhRadius * 1.5 + ring * 4;
-    const alpha = (1 - ring / 60) * 0.3 * intensity;
-    const hue = 30 + ring * 0.5;
-    
-    bhCtx.beginPath();
-    bhCtx.ellipse(cx, cy, r, r * 0.3, -0.3 + Math.sin(bhTime) * 0.05, 0, Math.PI * 2);
-    bhCtx.strokeStyle = `hsla(${hue}, 80%, ${50 + ring * 0.5}%, ${alpha})`;
-    bhCtx.lineWidth = 2;
-    bhCtx.stroke();
-  }
-  
-  // Photon ring
-  bhCtx.beginPath();
-  bhCtx.arc(cx, cy, bhRadius * 1.2, 0, Math.PI * 2);
-  bhCtx.strokeStyle = `rgba(255, 200, 100, ${0.6 * intensity})`;
-  bhCtx.lineWidth = 3;
-  bhCtx.shadowColor = 'rgba(255, 180, 50, 0.8)';
-  bhCtx.shadowBlur = 30;
-  bhCtx.stroke();
-  bhCtx.shadowBlur = 0;
-  
-  // Event horizon
-  const bhGrd = bhCtx.createRadialGradient(cx, cy, 0, cx, cy, bhRadius);
-  bhGrd.addColorStop(0, '#000');
-  bhGrd.addColorStop(0.8, '#000');
-  bhGrd.addColorStop(1, `rgba(255, 150, 50, ${0.3 * intensity})`);
-  bhCtx.beginPath();
-  bhCtx.arc(cx, cy, bhRadius, 0, Math.PI * 2);
-  bhCtx.fillStyle = bhGrd;
-  bhCtx.fill();
-  
-  // Gravitational lensing arcs
-  for (let i = 0; i < 8; i++) {
-    const angle = (i / 8) * Math.PI * 2 + bhTime * 0.5;
-    const arcR = bhRadius * 1.8;
-    bhCtx.beginPath();
-    bhCtx.arc(cx, cy, arcR, angle, angle + 0.4);
-    bhCtx.strokeStyle = `rgba(255, 220, 150, ${0.15 * intensity})`;
-    bhCtx.lineWidth = 2;
-    bhCtx.stroke();
-  }
-  
-  // Outer glow
-  const outerGrd = bhCtx.createRadialGradient(cx, cy, bhRadius, cx, cy, bhRadius * 4);
-  outerGrd.addColorStop(0, `rgba(255, 150, 50, ${0.05 * intensity})`);
-  outerGrd.addColorStop(1, 'transparent');
-  bhCtx.fillStyle = outerGrd;
-  bhCtx.fillRect(0, 0, bhCanvas.width, bhCanvas.height);
+function animateNumber(el,from,to,ms=520){
+if(!el)return;
+const start=performance.now();
+const step=now=>{
+const t=clamp01((now-start)/ms);
+el.textContent=String(Math.round(lerp(from,to,easeOut(t))));
+if(t<1)requestAnimationFrame(step);
+};
+requestAnimationFrame(step);
 }
 
-// ===== TESSERACT GRID =====
-function buildTesseractGrid() {
-  const grid = document.getElementById('tesseractGrid');
-  const spacing = 80;
-  for (let i = 0; i < 30; i++) {
-    const line = document.createElement('div');
-    line.className = 'grid-line-h';
-    line.style.top = (i * spacing) + 'px';
-    grid.appendChild(line);
-  }
-  for (let i = 0; i < 40; i++) {
-    const line = document.createElement('div');
-    line.className = 'grid-line-v';
-    line.style.left = (i * spacing) + 'px';
-    grid.appendChild(line);
-  }
-  
-  // Animated lines
-  const linesContainer = document.getElementById('tesseractLines');
-  for (let i = 0; i < 10; i++) {
-    const tl = document.createElement('div');
-    tl.className = 'tline';
-    tl.style.top = (10 + i * 9) + '%';
-    tl.style.width = (30 + Math.random() * 40) + '%';
-    tl.style.animationDelay = (i * 0.8) + 's';
-    tl.style.animationDuration = (6 + Math.random() * 4) + 's';
-    linesContainer.appendChild(tl);
-  }
+function updateCalculatorUI(next){
+if(!co2Big)return;
+animateNumber(co2Big,lastResult.total,next.total,560);
+animateNumber(calcOutroBig,lastResult.total,next.total,560);
+treesRow.textContent=`≈ ${Math.round(next.total/21)} trees grown for a year`;
+kmRow.textContent=`≈ ${Math.round(next.total/0.17)} km of driving avoided`;
+calcDiet.textContent=`${next.diet} kg`;
+calcTransport.textContent=`${next.transport} kg`;
+calcCooling.textContent=`${next.cooling} kg`;
+if(resultCard){resultCard.classList.remove("pulse");void resultCard.offsetWidth;resultCard.classList.add("pulse")}
+lastResult=next;
 }
 
-// ===== NAV DOTS =====
-function buildNavDots() {
-  const container = document.getElementById('navDots');
-  const sections = document.querySelectorAll('[data-section]');
-  sections.forEach((s, i) => {
-    const dot = document.createElement('div');
-    dot.className = 'nav-dot';
-    dot.addEventListener('click', () => {
-      s.scrollIntoView({ behavior: 'smooth' });
-    });
-    container.appendChild(dot);
-  });
+function readInputs(){return{meals:Number(mealsInput?.value??0),commutes:Number(commutesInput?.value??0),ac:Number(acInput?.value??24)}}
+
+function helperMeals(v){if(v===0)return"No change from baseline.";if(v>=14)return"Mostly plant-based week.";if(v>=7)return"About 1 meat-free meal per day.";return"Small weekly shift."}
+
+function syncInputsUI(){
+const{meals,commutes,ac}=readInputs();
+mealsVal.textContent=`${meals} / 21`;
+mealsHelp.textContent=helperMeals(meals);
+commutesVal.textContent=`${commutes} trips/week`;
+acVal.textContent=`${ac}°C`;
+updateCalculatorUI(computeImpact(meals,commutes,ac));
 }
 
-// ===== SCROLL HANDLING =====
-function getSectionProgress(section) {
-  const rect = section.getBoundingClientRect();
-  const vh = window.innerHeight;
-  const progress = 1 - (rect.top / vh);
-  return Math.max(0, Math.min(1, progress));
-}
+mealsInput?.addEventListener("input",syncInputsUI,{passive:true});
+commutesInput?.addEventListener("input",syncInputsUI,{passive:true});
+acInput?.addEventListener("input",syncInputsUI,{passive:true});
 
-function getSectionVisibility(section) {
-  const rect = section.getBoundingClientRect();
-  const vh = window.innerHeight;
-  const center = rect.top + rect.height / 2;
-  const visibility = 1 - Math.abs(center - vh / 2) / (vh * 0.8);
-  return Math.max(0, Math.min(1, visibility));
-}
-
-// ===== INTERSECTION OBSERVER =====
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-    }
-  });
-}, { threshold: 0.3 });
-
-document.querySelectorAll('[data-reveal]').forEach(el => {
-  revealObserver.observe(el);
+calcReset?.addEventListener("click",()=>{
+mealsInput.value=String(engine.baselineMeals);
+commutesInput.value=String(engine.baselineCommutes);
+acInput.value=String(engine.baselineAC);
+syncInputsUI();
 });
 
-// ===== MAIN LOOP =====
-function animate() {
-  targetScrollY = window.pageYOffset;
-  scrollY += (targetScrollY - scrollY) * 0.1;
-  
-  drawStars();
-  drawDust();
-  
-  // Wormhole
-  const wormholeSection = document.querySelector('.wormhole-section');
-  if (wormholeSection) {
-    const wp = getSectionVisibility(wormholeSection);
-    drawWormhole(wp);
-    const wt = document.getElementById('wormholeTitle');
-    const ws = document.getElementById('wormholeSub');
-    if (wt) wt.style.opacity = wp > 0.3 ? 1 : 0;
-    if (ws) ws.style.opacity = wp > 0.4 ? 1 : 0;
-  }
-  
-  // Black hole
-  const bhSection = document.querySelector('.blackhole-section');
-  if (bhSection) {
-    const bp = getSectionVisibility(bhSection);
-    drawBlackHole(bp);
-    const bht = document.getElementById('bhTitle');
-    const bhs = document.getElementById('bhSub');
-    if (bht) bht.style.opacity = bp > 0.3 ? 1 : 0;
-    if (bhs) bhs.style.opacity = bp > 0.4 ? 1 : 0;
-  }
-  
-  // Parallax for hero
-  const hero = document.querySelector('.hero');
-  if (hero) {
-    const heroTitle = document.getElementById('heroTitle');
-    const hp = scrollY / window.innerHeight;
-    if (heroTitle) {
-      heroTitle.style.transform = `translateY(${hp * 100}px) scale(${1 - hp * 0.1})`;
-      heroTitle.style.opacity = Math.max(0, 1 - hp * 1.5);
-    }
-  }
-  
-  // Planet parallax
-  const planetImg = document.getElementById('planetImg');
-  if (planetImg) {
-    const ps = document.querySelector('.planet-section');
-    if (ps) {
-      const pp = getSectionProgress(ps);
-      planetImg.style.transform = planetImg.classList.contains('visible') ? 
-        `scale(1) translateY(${(pp - 1) * -30}px)` : 
-        `scale(0.8) translateY(${(pp - 1) * -30}px)`;
-    }
-  }
-  
-  // Tesseract grid parallax
-  const tGrid = document.getElementById('tesseractGrid');
-  if (tGrid && tGrid.classList.contains('visible')) {
-    const ts = document.querySelector('.tesseract-section');
-    if (ts) {
-      const tp = getSectionProgress(ts);
-      tGrid.style.transform = `translateY(${(tp - 1) * 50}px) rotateX(${(tp - 1) * 5}deg)`;
-    }
-  }
-  
-  // Nebula overlay parallax
-  const nebula = document.getElementById('nebulaOverlay');
-  if (nebula) {
-    nebula.style.transform = `translateY(${scrollY * 0.05}px)`;
-  }
-  
-  // Progress bar
-  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-  const progress = (scrollY / docHeight) * 100;
-  document.getElementById('progressBar').style.width = progress + '%';
-  
-  // Nav dots
-  const sections = document.querySelectorAll('[data-section]');
-  const dots = document.querySelectorAll('.nav-dot');
-  sections.forEach((s, i) => {
-    const vis = getSectionVisibility(s);
-    if (dots[i]) {
-      dots[i].classList.toggle('active', vis > 0.5);
-    }
-  });
-  
-  requestAnimationFrame(animate);
+calcHowBtn?.addEventListener("click",()=>calcDialog?.showModal());
+calcCloseBtn?.addEventListener("click",()=>calcDialog?.close());
+
+calcBreakdownBtn?.addEventListener("click",()=>{
+if(!calcBreakdown)return;
+const open=calcBreakdown.classList.toggle("is-open");
+calcBreakdown.setAttribute("aria-hidden",open?"false":"true");
+calcBreakdownBtn.textContent=open?"Hide breakdown":"Show breakdown";
+});
+
+calcSaveBtn?.addEventListener("click",()=>{
+const plan=readInputs();
+try{localStorage.setItem("planetsos_plan",JSON.stringify(plan))}catch(e){}
+if(calcToast)calcToast.textContent="Saved. You can come back anytime.";
+});
+
+calcShareBtn?.addEventListener("click",async()=>{
+const plan=readInputs();
+const text=`PlanetOS plan: ${plan.meals} meat-free meals/week, ${plan.commutes} public transport trips/week, AC ${plan.ac}°C.`;
+try{await navigator.clipboard.writeText(text);if(calcToast)calcToast.textContent="Copied to clipboard."}
+catch{if(calcToast)calcToast.textContent="Copy failed — your browser may block clipboard on file:// URLs."}
+});
+
+syncInputsUI();
+
+/* Calculator in-view trigger */
+if(calculatorEl&&"IntersectionObserver"in window){
+const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)calculatorEl.classList.add("is-inview")})},{threshold:0.35});
+io.observe(calculatorEl);
 }
 
-// ===== RESIZE =====
-function onResize() {
-  initStars();
-  initDust();
-  resizeWormhole();
-  resizeBlackhole();
+/* ── Page Visibility: pause rendering when hidden ── */
+let isVisible=true;
+document.addEventListener("visibilitychange",()=>{isVisible=!document.hidden});
+
+/* ── Main animation loop (single rAF, batched) ── */
+const MIN_RAD=THREE.MathUtils.degToRad(-30);
+const MAX_RAD=THREE.MathUtils.degToRad(30);
+let currentRot=MIN_RAD,targetRot=MIN_RAD;
+let lastFrameTime=0;
+const FRAME_BUDGET=1000/60;
+
+function frame(now){
+requestAnimationFrame(frame);
+
+/* Throttle to ~60fps max */
+if(now-lastFrameTime<FRAME_BUDGET*0.9)return;
+lastFrameTime=now;
+
+if(!isVisible)return;
+
+if(reduceMotion){renderer.render(scene,camera);return}
+
+/* Read scroll once */
+const driveP=sectionProgress(metrics.driver);
+targetRot=lerp(MIN_RAD,MAX_RAD,driveP);
+currentRot=lerp(currentRot,targetRot,0.12);
+
+earthGroup.rotation.y+=0.0008;
+earthMesh.rotation.y=currentRot;
+glow.rotation.y=currentRot;
+
+/* Batch all UI updates */
+updateTransitionUI(sectionProgress(metrics.transition));
+updateReefScene();
+updateIceScene();
+updateForestScene();
+
+renderer.render(scene,camera);
 }
-
-window.addEventListener('resize', onResize);
-window.addEventListener('scroll', () => {}, { passive: true });
-
-// ===== INIT =====
-function init() {
-  initStars();
-  initDust();
-  resizeWormhole();
-  resizeBlackhole();
-  buildTesseractGrid();
-  buildNavDots();
-  animate();
-}
-
-// Generate planet image
-generatePlanetImage();
-
-function generatePlanetImage() {
-  const c = document.createElement('canvas');
-  c.width = 700; c.height = 700;
-  const ctx = c.getContext('2d');
-  
-  // Base
-  const grd = ctx.createRadialGradient(300, 280, 50, 350, 350, 350);
-  grd.addColorStop(0, '#d4a574');
-  grd.addColorStop(0.3, '#b8845a');
-  grd.addColorStop(0.6, '#8a6040');
-  grd.addColorStop(0.8, '#5a3a28');
-  grd.addColorStop(1, '#2a1a10');
-  ctx.fillStyle = grd;
-  ctx.beginPath();
-  ctx.arc(350, 350, 340, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // Surface detail bands
-  for (let i = 0; i < 20; i++) {
-    const y = 100 + i * 28 + Math.random() * 10;
-    const alpha = 0.05 + Math.random() * 0.1;
-    ctx.fillStyle = `rgba(${150 + Math.random()*50}, ${100 + Math.random()*40}, ${60 + Math.random()*30}, ${alpha})`;
-    ctx.fillRect(50, y, 600, 8 + Math.random() * 15);
-  }
-  
-  // Storm spots
-  for (let i = 0; i < 5; i++) {
-    const sx = 150 + Math.random() * 400;
-    const sy = 200 + Math.random() * 300;
-    const sr = 15 + Math.random() * 30;
-    const sgrd = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr);
-    sgrd.addColorStop(0, `rgba(200, 150, 100, 0.3)`);
-    sgrd.addColorStop(1, 'transparent');
-    ctx.fillStyle = sgrd;
-    ctx.beginPath();
-    ctx.ellipse(sx, sy, sr * 1.5, sr, 0, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  
-  // Shadow (terminator)
-  const shadowGrd = ctx.createLinearGradient(500, 0, 700, 0);
-  shadowGrd.addColorStop(0, 'transparent');
-  shadowGrd.addColorStop(0.5, 'rgba(0,0,0,0.5)');
-  shadowGrd.addColorStop(1, 'rgba(0,0,0,0.95)');
-  ctx.fillStyle = shadowGrd;
-  ctx.beginPath();
-  ctx.arc(350, 350, 340, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // Atmosphere rim
-  const atmGrd = ctx.createRadialGradient(350, 350, 320, 350, 350, 350);
-  atmGrd.addColorStop(0, 'transparent');
-  atmGrd.addColorStop(0.7, 'transparent');
-  atmGrd.addColorStop(1, 'rgba(100, 150, 255, 0.15)');
-  ctx.fillStyle = atmGrd;
-  ctx.beginPath();
-  ctx.arc(350, 350, 350, 0, Math.PI * 2);
-  ctx.fill();
-  
-  document.getElementById('planetImg').src = c.toDataURL();
-}
-
-document.addEventListener('DOMContentLoaded', init);
-if (document.readyState !== 'loading') init();
+requestAnimationFrame(frame);
 </script>
 </body>
 </html>
