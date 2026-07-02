@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Geometry Rush</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    background: #0a0a1a;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    overscroll-behavior: none;
+  }
+  #game {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    touch-action: none;
+  }
+  #ui {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    background: radial-gradient(ellipse at center, rgba(20, 10, 50, 0.7), rgba(5, 0, 20, 0.95));
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .hidden { display: none !important; }
+  .title {
+    font-size: clamp(48px, 10vw, 96px);
+    font-weight: 900;
+    letter-spacing: 4px;
+    background: linear-gradient(90deg, #00f0ff, #ff00e6, #ffea00);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 40px rgba(0, 240, 255, 0.5);
+    margin-bottom: 20px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.03); filter: brightness(1.2); }
+  }
+  .subtitle {
+    color: #a0a0d0;
+    font-size: clamp(14px, 3vw, 20px);
+    margin-bottom: 40px;
+    letter-spacing: 2px;
+    text-align: center;
+    padding: 0 20px;
+  }
+  .btn {
+    background: linear-gradient(135deg, #00f0ff, #0080ff);
+    color: #fff;
+    border: none;
+    padding: 18px 60px;
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 700;
+    letter-spacing: 3px;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.5), inset 0 2px 0 rgba(255,255,255,0.3);
+    transition: transform 0.15s, box-shadow 0.15s;
+    margin: 10px;
+    text-transform: uppercase;
+  }
+  .btn:active {
+    transform: scale(0.95);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.7);
+  }
+  .stats {
+    color: #fff;
+    font-size: clamp(16px, 3.5vw, 22px);
+    margin: 15px 0;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+  .stats span { color: #ffea00; font-weight: 700; }
+  .death-title {
+    font-size: clamp(40px, 8vw, 72px);
+    font-weight: 900;
+    color: #ff3366;
+    text-shadow: 0 0 30px rgba(255, 51, 102, 0.7);
+    margin-bottom: 10px;
+    letter-spacing: 4px;
+  }
+  #hud {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 5;
+    pointer-events: none;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+  }
+  .hud-item {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: clamp(12px, 2.5vw, 16px);
+    letter-spacing: 1px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  #progressBar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 4px;
+    background: rgba(255,255,255,0.1);
+    z-index: 6;
+  }
+  #progressFill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #00f0ff, #ff00e6);
+    box-shadow: 0 0 10px #00f0ff;
+    transition: width 0.1s linear;
+  }
+  .hint {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.5);
+    font-size: 14px;
+    letter-spacing: 2px;
+    pointer-events: none;
+    animation: blink 1.5s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+  }
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="progressBar"><div id="progressFill"></div></div>
+<div id="hud" class="hidden">
+  <div class="hud-item">ATTEMPT <span id="attemptNum">1</span></div>
+  <div class="hud-item"><span id="percentNum">0</span>%</div>
+</div>
+<div id="ui">
+  <div id="menu" class="overlay">
+    <div class="title">GEOMETRY RUSH</div>
+    <div class="subtitle">TAP ANYWHERE TO JUMP • AVOID THE SPIKES</div>
+    <button class="btn" id="playBtn">PLAY</button>
+    <div class="subtitle" style="margin-top:30px; font-size:12px; opacity:0.6;">BEST: <span id="bestScore">0</span>%</div>
+  </div>
+  <div id="death" class="overlay hidden">
+    <div class="death-title">CRASHED!</div>
+    <div class="stats">PROGRESS: <span id="deathPercent">0</span>%</div>
+    <div class="stats">ATTEMPT: <span id="deathAttempt">1</span></div>
+    <button class="btn" id="retryBtn">RETRY</button>
+    <button class="btn" id="menuBtn" style="background: linear-gradient(135deg, #ff00e6, #8000ff);">MENU</button>
+  </div>
+</div>
+<div id="hint" class="hint hidden">TAP TO JUMP</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const menu = document.getElementById('menu');
+  const death = document.getElementById('death');
+  const hud = document.getElementById('hud');
+  const hint = document.getElementById('hint');
+  const playBtn = document.getElementById('playBtn');
+  const retryBtn = document.getElementById('retryBtn');
+  const menuBtn = document.getElementById('menuBtn');
+  const attemptNum = document.getElementById('attemptNum');
+  const percentNum = document.getElementById('percentNum');
+  const deathPercent = document.getElementById('deathPercent');
+  const deathAttempt = document.getElementById('deathAttempt');
+  const progressFill = document.getElementById('progressFill');
+  const bestScoreEl = document.getElementById('bestScore');
+
+  let W = 0, H = 0, DPR = 1;
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // Game constants
+  const GROUND_HEIGHT_RATIO = 0.2;
+  const PLAYER_SIZE = 44;
+  const GRAVITY = 0.9;
+  const JUMP_VEL = -15.5;
+  const GAME_SPEED_BASE = 7.5;
+  let gameSpeed = GAME_SPEED_BASE;
+
+  // State
+  let state = 'menu'; // menu, playing, dead
+  let attempt = 1;
+  let bestPercent = parseInt(localStorage.getItem('gr_best') || '0');
+  bestScoreEl.textContent = bestPercent;
+
+  // Player
+  const player = {
+    x: 0, y: 0, vy: 0,
+    size: PLAYER_SIZE,
+    rotation: 0,
+    onGround: false,
+    dead: false,
+    trail: []
+  };
+
+  // Level design - hand crafted for rhythm
+  // Types: 'spike', 'block', 'spike_up' (spike on top of block), 'platform', 'gap'
+  // Each obstacle has x position (in world units)
+  const UNIT = 50; // world unit size
+  const level = [];
+  let levelLength = 0;
+
+  function buildLevel() {
+    level.length = 0;
+    let x = 600;
+    const add = (type, count = 1, spacing = 1) => {
+      for (let i = 0; i < count; i++) {
+        level.push({ type, x: x + i * UNIT * spacing });
+      }
+      x += count * UNIT * spacing;
+    };
+    const gap = (units = 1) => { x += UNIT * units; };
+
+    // Intro - easy spikes
+    add('spike'); gap(3);
+    add('spike'); gap(3);
+    add('spike'); gap(4);
+    // Double spike
+    add('spike', 2, 1); gap(3);
+    add('spike'); gap(3);
+    // Block with spike on top
+    add('block'); level.push({ type: 'spike_on_block', x: x - UNIT }); gap(3);
+    add('spike'); gap(3);
+    // Triple spike
+    add('spike', 3, 1); gap(4);
+    // Platform jump
+    add('platform'); gap(3);
+    add('spike'); gap(3);
+    add('platform'); gap(3);
+    add('spike', 2, 1); gap(4);
+    // Staircase
+    add('block'); gap(1);
+    level.push({ type: 'block', x: x, y: -UNIT }); x += UNIT;
+    level.push({ type: 'block', x: x, y: -UNIT*2 }); x += UNIT;
+    gap(2);
+    add('spike'); gap(3);
+    add('spike', 2, 1); gap(3);
+    add('spike'); gap(3);
+    // Block tower with spike
+    add('block'); level.push({ type: 'block', x: x - UNIT, y: -UNIT });
+    level.push({ type: 'spike_on_block', x: x - UNIT, y: -UNIT });
+    gap(3);
+    add('spike', 3, 1); gap(4);
+    // Platform sequence
+    add('platform'); gap(2);
+    add('spike'); gap(2);
+    add('platform'); gap(2);
+    add('spike', 2, 1); gap(4);
+    // Final challenge
+    add('spike'); gap(2);
+    add('block'); level.push({ type: 'spike_on_block', x: x - UNIT }); gap(2);
+    add('spike'); gap(2);
+    add('spike', 2, 1); gap(3);
+    add('spike'); gap(2);
+    add('spike', 3, 1); gap(4);
+    add('spike'); gap(3);
+    add('spike'); gap(3);
+    add('spike', 2, 1); gap(5);
+
+    levelLength = x + 400;
+  }
+  buildLevel();
+
+  // Particles
+  const particles = [];
+  function spawnParticles(x, y, color, count = 20, spread = 8) {
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x, y,
+        vx: (Math.random() - 0.5) * spread,
+        vy: (Math.random() - 0.5) * spread - 2,
+        life: 1,
+        decay: 0.015 + Math.random() * 0.02,
+        size: 3 + Math.random() * 5,
+        color
+      });
+    }
+  }
+  function updateParticles() {
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.3;
+      p.life -= p.decay;
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+  }
+  function drawParticles() {
+    for (const p of particles) {
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // Screen shake
+  let shake = 0;
+  let shakeX = 0, shakeY = 0;
+
+  // Camera / world offset
+  let worldX = 0;
+
+  // Ground Y
+  function groundY() { return H - H * GROUND_HEIGHT_RATIO; }
+
+  // Reset player
+  function resetPlayer() {
+    player.x = W * 0.25;
+    player.y = groundY() - player.size;
+    player.vy = 0;
+    player.rotation = 0;
+    player.onGround = true;
+    player.dead = false;
+    player.trail = [];
+    worldX = 0;
+    particles.length = 0;
+    shake = 0;
+    gameSpeed = GAME_SPEED_BASE;
+  }
+
+  // Input
+  let jumpPressed = false;
+  let jumpHeld = false;
+  function onPress() {
+    if (state === 'playing' && !player.dead) {
+      if (player.onGround) {
+        player.vy = JUMP_VEL;
+        player.onGround = false;
+      }
+    }
+  }
+  window.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    onPress();
+  }, { passive: false });
+  window.addEventListener('touchend', (e) => { e.preventDefault(); }, { passive: false });
+  window.addEventListener('mousedown', (e) => {
+    if (e.target.tagName === 'BUTTON') return;
+    onPress();
+  });
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' || e.code === 'ArrowUp') {
+      e.preventDefault();
+      onPress();
+    }
+  });
+
+  // Buttons
+  playBtn.addEventListener('click', startGame);
+  playBtn.addEventListener('touchend', (e) => { e.preventDefault(); startGame(); });
+  retryBtn.addEventListener('click', startGame);
+  retryBtn.addEventListener('touchend', (e) => { e.preventDefault(); startGame(); });
+  menuBtn.addEventListener('click', toMenu);
+  menuBtn.addEventListener('touchend', (e) => { e.preventDefault(); toMenu(); });
+
+  function startGame() {
+    menu.classList.add('hidden');
+    death.classList.add('hidden');
+    hud.classList.remove('hidden');
+    hint.classList.remove('hidden');
+    setTimeout(() => hint.classList.add('hidden'), 2500);
+    state = 'playing';
+    resetPlayer();
+    attemptNum.textContent = attempt;
+  }
+  function toMenu() {
+    death.classList.add('hidden');
+    hud.classList.add('hidden');
+    menu.classList.remove('hidden');
+    state = 'menu';
+  }
+  function die() {
+    if (player.dead) return;
+    player.dead = true;
+    state = 'dead';
+    shake = 20;
+    spawnParticles(player.x + player.size/2, player.y + player.size/2, '#ff3366', 40, 12);
+    spawnParticles(player.x + player.size/2, player.y + player.size/2, '#ffea00', 20, 10);
+    const pct = Math.min(100, Math.floor((worldX / levelLength) * 100));
+    if (pct > bestPercent) {
+      bestPercent = pct;
+      localStorage.setItem('gr_best', bestPercent);
+      bestScoreEl.textContent = bestPercent;
+    }
+    setTimeout(() => {
+      deathPercent.textContent = pct;
+      deathAttempt.textContent = attempt;
+      death.classList.remove('hidden');
+      hud.classList.add('hidden');
+      attempt++;
+    }, 700);
+  }
+
+  // Collision helpers
+  function rectRect(a, b) {
+    return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+  }
+  // Triangle spike collision (simplified: use inner rect)
+  function spikeRect(sx, sy, sw, sh, r) {
+    // spike triangle: base at bottom, point at top
+    // collision box is smaller than full rect
+    const inset = sw * 0.2;
+    const pr = { x: r.x, y: r.y, w: r.w, h: r.h };
+    const sb = { x: sx + inset, y: sy + sh * 0.3, w: sw - inset*2, h: sh * 0.7 };
+    return rectRect(pr, sb);
+  }
+
+  // Update
+  function update() {
+    if (state !== 'playing') return;
+    if (player.dead) return;
+
+    // World scroll
+    worldX += gameSpeed;
+
+    // Physics
+    player.vy += GRAVITY;
+    player.y += player.vy;
+
+    // Ground collision
+    const gy = groundY();
+    if (player.y + player.size >= gy) {
+      player.y = gy - player.size;
+      player.vy = 0;
+      player.onGround = true;
+    } else {
+      player.onGround = false;
+    }
+
+    // Rotation
+    if (!player.onGround) {
+      player.rotation += 0.15;
+    } else {
+      // Snap to nearest 90deg
+      const target = Math.round(player.rotation / (Math.PI/2)) * (Math.PI/2);
+      player.rotation += (target - player.rotation) * 0.3;
+    }
+
+    // Trail
+    player.trail.push({ x: player.x + player.size/2, y: player.y + player.size/2, life: 1 });
+    if (player.trail.length > 15) player.trail.shift();
+    for (const t of player.trail) t.life -= 0.07;
+
+    // Collision with obstacles
+    const pr = { x: player.x + 4, y: player.y + 4, w: player.size - 8, h: player.size - 8 };
+    const viewLeft = worldX - 100;
+    const viewRight = worldX + W + 100;
+
+    for (const obs of level) {
+      const wx = obs.x - worldX + player.x;
+      if (wx < viewLeft - worldX + player.x - 200 || wx > viewRight - worldX + player.x + 200) continue;
+      const oy = obs.y || 0;
+
+      if (obs.type === 'spike') {
+        const sx = wx;
+        const sy = gy - UNIT + oy;
+        if (spikeRect(sx, sy, UNIT, UNIT, pr)) { die(); return; }
+      } else if (obs.type === 'block') {
+        const bx = wx;
+        const by = gy - UNIT + oy;
+        const br = { x: bx, y: by, w: UNIT, h: UNIT };
+        // Check if landing on top
+        if (rectRect(pr, br)) {
+          // Determine collision side
+          const prevBottom = player.y + player.size - player.vy;
+          if (player.vy >= 0 && prevBottom <= by + 2) {
+            // Land on top
+            player.y = by - player.size;
+            player.vy = 0;
+            player.onGround = true;
+          } else {
+            // Side or bottom collision = death
+            die(); return;
+          }
+        }
+      } else if (obs.type === 'spike_on_block') {
+        // Block
+        const bx = wx;
+        const by = gy - UNIT + oy;
+        const br = { x: bx, y: by, w: UNIT, h: UNIT };
+        if (rectRect(pr, br)) {
+          const prevBottom = player.y + player.size - player.vy;
+          if (player.vy >= 0 && prevBottom <= by + 2) {
+            player.y = by - player.size;
+            player.vy = 0;
+            player.onGround = true;
+          } else {
+            die(); return;
+          }
+        }
+        // Spike on top
+        const sx = wx;
+        const sy = by - UNIT;
+        if (spikeRect(sx, sy, UNIT, UNIT, pr)) { die(); return; }
+      } else if (obs.type === 'platform') {
+        const bx = wx;
+        const by = gy - UNIT * 2 + oy;
+        const br = { x: bx, y: by, w: UNIT * 2, h: UNIT * 0.4 };
+        if (rectRect(pr, br)) {
+          const prevBottom = player.y + player.size - player.vy;
+          if (player.vy >= 0 && prevBottom <= by + 4) {
+            player.y = by - player.size;
+            player.vy = 0;
+            player.onGround = true;
+          } else {
+            die(); return;
+          }
+        }
+      }
+    }
+
+    // Win condition
+    if (worldX >= levelLength) {
+      const pct = 100;
+      if (pct > bestPercent) {
+        bestPercent = pct;
+        localStorage.setItem('gr_best', bestPercent);
+        bestScoreEl.textContent = bestPercent;
+      }
+      deathPercent.textContent = pct;
+      deathAttempt.textContent = attempt;
+      document.querySelector('.death-title').textContent = 'COMPLETE!';
+      death.classList.remove('hidden');
+      hud.classList.add('hidden');
+      state = 'dead';
+      attempt++;
+    }
+
+    // Update HUD
+    const pct = Math.min(100, Math.floor((worldX / levelLength) * 100));
+    percentNum.textContent = pct;
+    progressFill.style.width = pct + '%';
+
+    // Shake decay
+    if (shake > 0) {
+      shakeX = (Math.random() - 0.5) * shake;
+      shakeY = (Math.random() - 0.5) * shake;
+      shake *= 0.85;
+      if (shake < 0.5) shake = 0;
+    } else {
+      shakeX = 0; shakeY = 0;
+    }
+
+    updateParticles();
+  }
+
+  // Draw
+  let bgOffset = 0;
+  let groundOffset = 0;
+  function draw() {
+    // Background gradient
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, '#1a0b3d');
+    grad.addColorStop(0.5, '#2d1b5e');
+    grad.addColorStop(1, '#0f0524');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.save();
+    ctx.translate(shakeX, shakeY);
+
+    // Parallax stars / grid
+    bgOffset = (state === 'playing' ? bgOffset + gameSpeed * 0.3 : bgOffset + 0.5);
+    ctx.strokeStyle = 'rgba(100, 80, 200, 0.15)';
+    ctx.lineWidth = 1;
+    const gridSize = 60;
+    const startX = -(bgOffset % gridSize);
+    for (let x = startX; x < W; x += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, groundY());
+      ctx.stroke();
+    }
+    for (let y = 0; y < groundY(); y += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(W, y);
+      ctx.stroke();
+    }
+
+    // Background mountains
+    ctx.fillStyle = 'rgba(60, 30, 120, 0.5)';
+    ctx.beginPath();
+    ctx.moveTo(0, groundY());
+    const mOffset = (state === 'playing' ? worldX * 0.2 : Date.now() * 0.02);
+    for (let x = 0; x <= W; x += 40) {
+      const h = Math.sin((x + mOffset) * 0.01) * 60 + Math.sin((x + mOffset) * 0.003) * 100 + 150;
+      ctx.lineTo(x, groundY() - h);
+    }
+    ctx.lineTo(W, groundY());
+    ctx.closePath();
+    ctx.fill();
+
+    // Ground
+    const gy = groundY();
+    const groundGrad = ctx.createLinearGradient(0, gy, 0, H);
+    groundGrad.addColorStop(0, '#3d1f7a');
+    groundGrad.addColorStop(1, '#1a0b3d');
+    ctx.fillStyle = groundGrad;
+    ctx.fillRect(0, gy, W, H - gy);
+
+    // Ground top line (neon)
+    ctx.strokeStyle = '#00f0ff';
+    ctx.lineWidth = 3;
+    ctx.shadowColor = '#00f0ff';
+    ctx.shadowBlur = 15;
+    ctx.beginPath();
+    ctx.moveTo(0, gy);
+    ctx.lineTo(W, gy);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Ground grid
+    groundOffset = state === 'playing' ? groundOffset + gameSpeed : groundOffset + 1;
+    ctx.strokeStyle = 'rgba(0, 240, 255, 0.2)';
+    ctx.lineWidth = 1;
+    const gGridSize = 50;
+    const gStart = -(groundOffset % gGridSize);
+    for (let x = gStart; x < W; x += gGridSize) {
+      ctx.beginPath();
+      ctx.moveTo(x, gy);
+      ctx.lineTo(x, H);
+      ctx.stroke();
+    }
+    for (let y = gy + gGridSize; y < H; y += gGridSize) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(W, y);
+      ctx.stroke();
+    }
+
+    // Draw obstacles
+    if (state === 'playing' || state === 'dead') {
+      for (const obs of level) {
+        const sx = obs.x - worldX + player.x;
+        if (sx < -100 || sx > W + 100) continue;
+        const oy = obs.y || 0;
+
+        if (obs.type === 'spike') {
+          drawSpike(sx, gy - UNIT + oy, UNIT, UNIT);
+        } else if (obs.type === 'block') {
+          drawBlock(sx, gy - UNIT + oy, UNIT, UNIT);
+        } else if (obs.type === 'spike_on_block') {
+          drawBlock(sx, gy - UNIT + oy, UNIT, UNIT);
+          drawSpike(sx, gy - UNIT * 2 + oy, UNIT, UNIT);
+        } else if (obs.type === 'platform') {
+          drawPlatform(sx, gy - UNIT * 2 + oy, UNIT * 2, UNIT * 0.4);
+        }
+      }
+    }
+
+    // Trail
+    if (!player.dead) {
+      for (let i = 0; i < player.trail.length; i++) {
+        const t = player.trail[i];
+        if (t.life <= 0) continue;
+        ctx.globalAlpha = t.life * 0.5;
+        ctx.fillStyle = '#00f0ff';
+        const s = player.size * t.life * 0.8;
+        ctx.fillRect(t.x - s/2, t.y - s/2, s, s);
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    // Player
+    if (!player.dead) {
+      ctx.save();
+      ctx.translate(player.x + player.size/2, player.y + player.size/2);
+      ctx.rotate(player.rotation);
+      // Glow
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = 20;
+      // Body
+      const pg = ctx.createLinearGradient(-player.size/2, -player.size/2, player.size/2, player.size/2);
+      pg.addColorStop(0, '#00f0ff');
+      pg.addColorStop(1, '#0080ff');
+      ctx.fillStyle = pg;
+      ctx.fillRect(-player.size/2, -player.size/2, player.size, player.size);
+      ctx.shadowBlur = 0;
+      // Border
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(-player.size/2, -player.size/2, player.size, player.size);
+      // Inner detail
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.fillRect(-player.size/2 + 6, -player.size/2 + 6, player.size - 12, 4);
+      // Eye/icon
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(-6, -4, 12, 8);
+      ctx.fillStyle = '#0a0a1a';
+      ctx.fillRect(-3, -2, 6, 4);
+      ctx.restore();
+    }
+
+    // Particles
+    drawParticles();
+
+    ctx.restore();
+  }
+
+  function drawSpike(x, y, w, h) {
+    ctx.save();
+    ctx.shadowColor = '#ffea00';
+    ctx.shadowBlur = 12;
+    const g = ctx.createLinearGradient(x, y, x, y + h);
+    g.addColorStop(0, '#ffea00');
+    g.addColorStop(1, '#ff8800');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(x, y + h);
+    ctx.lineTo(x + w/2, y);
+    ctx.lineTo(x + w, y + h);
+    ctx.closePath();
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    // Inner triangle
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.beginPath();
+    ctx.moveTo(x + w*0.2, y + h*0.8);
+    ctx.lineTo(x + w/2, y + h*0.3);
+    ctx.lineTo(x + w*0.8, y + h*0.8);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawBlock(x, y, w, h) {
+    ctx.save();
+    ctx.shadowColor = '#ff00e6';
+    ctx.shadowBlur = 10;
+    const g = ctx.createLinearGradient(x, y, x, y + h);
+    g.addColorStop(0, '#ff00e6');
+    g.addColorStop(1, '#8000a0');
+    ctx.fillStyle = g;
+    ctx.fillRect(x, y, w, h);
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x, y, w, h);
+    // Inner detail
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x + 5, y + 5, w - 10, h - 10);
+    ctx.restore();
+  }
+
+  function drawPlatform(x, y, w, h) {
+    ctx.save();
+    ctx.shadowColor = '#00ff88';
+    ctx.shadowBlur = 12;
+    const g = ctx.createLinearGradient(x, y, x, y + h);
+    g.addColorStop(0, '#00ff88');
+    g.addColorStop(1, '#008844');
+    ctx.fillStyle = g;
+    ctx.fillRect(x, y, w, h);
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x, y, w, h);
+    ctx.restore();
+  }
+
+  // Main loop
+  function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+  // Prevent scroll on iOS
+  document.addEventListener('gesturestart', e => e.preventDefault());
+  document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+})();
+</script>
+</body>
+</html>
+
