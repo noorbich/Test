@@ -1,790 +1,331 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="description" content="PlanetOS — Climate change awareness and carbon footprint calculator.">
-<meta name="theme-color" content="#030308">
-<title>PlanetOS</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
-<link rel="preconnect" href="https://unpkg.com" crossorigin>
-<link rel="dns-prefetch" href="https://image.qwenlm.ai">
-<link rel="preload" as="image" href="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/1935f7fd2-0d4d-494f-843a-53eeb6bb2c98.png" fetchpriority="high">
-<style>
-*,*::before,*::after{box-sizing:border-box}
-html,body{height:100%}
-h1,h2,h3{font-weight:500;margin:0}
-:root{
---accent:#47d6ea;
---tool-bg:#f6f7f9;
---tool-card:rgba(255,255,255,0.78);
---tool-border:rgba(15,23,42,0.10);
---tool-text:#0b0f14;
---tool-muted:rgba(11,15,20,0.65);
-}
-html{scroll-behavior:auto}
-body{
-margin:0;
-font-family:"Gill Sans MT","Gill Sans","Trebuchet MS","Segoe UI",system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
-font-weight:400;
--webkit-font-smoothing:antialiased;
--moz-osx-font-smoothing:grayscale;
-font-synthesis:none;
-color:#f9fafb;
-background:#030308;
-overflow-x:hidden;
-}
-#scene{position:fixed;inset:0;z-index:0;contain:strict}
-.hero{position:relative;z-index:1;min-height:100vh;display:grid;place-items:center;padding:6vh 6vw;text-align:center;contain:layout style}
-.hero-text{max-width:70ch;will-change:opacity,transform}
-.hero-text h1{margin:0 0 0.6rem;font-size:clamp(2.8rem,6vw,5rem);line-height:1.04;letter-spacing:-0.02em}
-.hero-text p{margin:0.35rem 0;opacity:0.78}
-.hint{margin-top:1.2rem;opacity:0.55}
-.transition{position:relative;z-index:2;height:210vh;contain:layout}
-.transition-sticky{position:sticky;top:0;height:100vh;overflow:hidden;contain:strict}
-.transition-tint{position:absolute;inset:0;background:rgba(40,200,220,1);opacity:0;pointer-events:none;contain:strict}
-.transition-vignette{position:absolute;inset:0;background:radial-gradient(circle at 50% 30%,rgba(0,0,0,0) 35%,rgba(0,0,0,0.55) 100%);opacity:0;pointer-events:none;contain:strict}
-.transition-hint{position:absolute;left:50%;bottom:10%;transform:translateX(-50%);text-align:center;font-size:clamp(1.05rem,2.2vw,1.4rem);opacity:0;max-width:60ch;padding:0 6vw;pointer-events:none}
-.reef{position:relative;z-index:3;height:420vh;contain:layout}
-.reef-sticky{position:sticky;top:0;height:100vh;overflow:hidden;background:linear-gradient(to bottom,#47d6ea 0%,#0a5f6c 55%,#042d34 100%);contain:strict}
-.reef-fog{position:absolute;inset:0;background:radial-gradient(circle at 50% 20%,rgba(255,255,255,0.10),rgba(0,0,0,0.45));opacity:0;pointer-events:none;z-index:5;contain:strict}
-.reef-layer{position:absolute;inset:-12%;width:124%;height:124%;object-fit:cover;will-change:transform,opacity;pointer-events:none;content-visibility:auto;contain:layout style}
-.layer-bg{z-index:1}
-.layer-mid{z-index:2}
-.layer-midfg{z-index:3}
-.layer-fg{z-index:4}
-.reef-copy{position:absolute;z-index:9;left:50%;top:10%;transform:translateX(-50%);text-align:center;padding:0 6vw;opacity:0.92;text-shadow:0 10px 30px rgba(0,0,0,0.35);will-change:opacity,transform}
-.reef-copy h2{margin:0 0 0.4rem;font-size:clamp(1.8rem,4vw,3rem);letter-spacing:-0.02em}
-.reef-copy p{margin:0;opacity:0.8;max-width:60ch;margin-inline:auto}
-.bubbles{position:absolute;inset:0;z-index:8;display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;pointer-events:none}
-.bubble-col{height:100%;display:grid;place-items:center}
-.bubble{position:relative;width:clamp(220px,22vw,300px);height:clamp(360px,56vh,520px);border-radius:24px;overflow:hidden;background:rgba(255,255,255,0.86);border:1px solid rgba(255,255,255,0.28);box-shadow:0 26px 70px rgba(0,0,0,0.30),inset 0 1px 0 rgba(255,255,255,0.35);opacity:0;transform:translateY(140vh);will-change:transform,opacity;pointer-events:auto;contain:layout style}
-.bubble::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 22% 12%,rgba(255,255,255,0.30),rgba(255,255,255,0) 52%);pointer-events:none;z-index:1}
-.bubble::after{content:"";position:absolute;inset:0;border-radius:24px;border:1px solid rgba(11,15,20,0.06);pointer-events:none;z-index:1}
-.bubble-inner{position:relative;z-index:2;height:100%;display:grid;grid-template-rows:54% 46%}
-.bubble-media{position:relative;overflow:hidden;background:rgba(0,0,0,0.03);border-bottom:1px solid rgba(0,0,0,0.10)}
-.bubble-media img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.02);content-visibility:auto}
-.bubble-text{padding:16px 16px 18px;color:rgba(0,0,0,0.86);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:10px}
-.bubble-text h3{margin:0;font-size:clamp(1.0rem,1.55vw,1.15rem);letter-spacing:-0.01em;line-height:1.15;max-width:28ch}
-.bubble-text p{margin:0;font-size:clamp(0.88rem,1.25vw,0.96rem);line-height:1.32;opacity:0.78;max-width:30ch}
-.bubble-link{display:inline-block;margin-top:2px;max-width:100%;white-space:normal;word-break:break-word;color:rgba(0,0,0,0.84);text-decoration:none;border-bottom:1px solid rgba(0,0,0,0.22);padding-bottom:3px}
-.bubble-link:hover{border-bottom-color:rgba(0,0,0,0.55)}
-.bubble-link:focus-visible{outline:2px solid rgba(71,214,234,0.7);outline-offset:4px;border-bottom-color:transparent}
-.ice{position:relative;z-index:4;height:460vh;contain:layout}
-.ice-sticky{position:sticky;top:0;height:100vh;overflow:hidden;background:#02161b;contain:strict}
-.ice-stage{position:absolute;inset:0;transform:scale(1.12);transform-origin:50% 50%;pointer-events:none}
-.ice-fog{position:absolute;inset:0;background:radial-gradient(circle at 50% 20%,rgba(255,255,255,0.16),rgba(0,0,0,0.35));opacity:0;pointer-events:none;z-index:6;contain:strict}
-.ice-layer{position:absolute;will-change:transform,opacity;pointer-events:none;object-fit:cover;content-visibility:auto;contain:layout style}
-.ice-bg{left:0%;top:0%;width:100%;height:100%;z-index:1}
-.ice-mid{left:0%;top:44.190476%;width:100%;height:55.809524%;z-index:2}
-.ice-fg{left:70.301253%;top:69.638095%;width:29.698747%;height:30.361905%;z-index:3;transform-origin:60% 95%}
-.ice-copy{position:absolute;z-index:9;left:50%;top:10%;transform:translateX(-50%);text-align:center;padding:0 6vw;opacity:0.92;text-shadow:0 10px 30px rgba(0,0,0,0.35)}
-.ice-copy h2{margin:0 0 0.4rem;font-size:clamp(1.8rem,4vw,3rem);letter-spacing:-0.02em}
-.ice-copy p{margin:0;opacity:0.8;max-width:60ch;margin-inline:auto}
-.forest{position:relative;z-index:5;height:520vh;contain:layout}
-.forest-sticky{position:sticky;top:0;height:100vh;overflow:hidden;background:linear-gradient(to bottom,#d9f6ff 0%,#a9e6ff 55%,#78c7ef 100%);contain:strict}
-.forest-stage{position:absolute;inset:0;transform:scale(1.10);transform-origin:50% 50%;pointer-events:none}
-.forest-fog{position:absolute;inset:0;background:radial-gradient(circle at 50% 25%,rgba(255,255,255,0.12),rgba(0,0,0,0.18));opacity:0;pointer-events:none;z-index:7;contain:strict}
-.forest-layer{position:absolute;will-change:transform,opacity;pointer-events:none;object-fit:fill;content-visibility:auto;contain:layout style}
-.forest-bg{left:0%;top:28.59375%;width:100%;height:71.40625%;z-index:1}
-.forest-backmid{left:0%;top:33.4375%;width:100%;height:66.5625%;z-index:2}
-.forest-mid{left:0%;top:31.375%;width:100%;height:68.625%;z-index:3}
-.forest-midfg{left:3.886719%;top:37.5%;width:92.226563%;height:62.5%;z-index:4}
-.forest-frontmid{left:0%;top:43.3125%;width:100%;height:56.6875%;z-index:5}
-.forest-fg{left:3.857422%;top:46.4375%;width:92.285156%;height:53.5625%;z-index:6}
-.forest-copy{position:absolute;z-index:9;left:50%;top:10%;transform:translateX(-50%);text-align:center;padding:0 6vw;opacity:0.92;text-shadow:0 12px 34px rgba(0,0,0,0.45)}
-.forest-copy h2{margin:0 0 0.4rem;font-size:clamp(1.8rem,4vw,3rem);letter-spacing:-0.02em}
-.forest-copy p{margin:0;opacity:0.8;max-width:60ch;margin-inline:auto}
-.tool-bridge{position:relative;z-index:6;height:110vh;background:linear-gradient(to bottom,#ffffff 0%,#ffffff 24%,var(--tool-bg) 100%)}
-.calculator{position:relative;z-index:7;height:160vh;background:var(--tool-bg);color:var(--tool-text)}
-.calculator-sticky{position:sticky;top:0;height:100vh;display:grid;place-items:center;padding:7vh 6vw}
-.calc-shell{width:min(1120px,100%);display:grid;gap:clamp(18px,4vw,40px);align-items:start;grid-template-columns:1.05fr 0.95fr}
-.calc-head h2{margin:0 0 0.5rem;font-size:clamp(2.0rem,4vw,2.6rem);letter-spacing:-0.02em}
-.calc-sub{margin:0 0 0.9rem;color:var(--tool-muted);line-height:1.35;max-width:55ch}
-.calc-reset{appearance:none;border:1px solid var(--tool-border);background:rgba(255,255,255,0.7);color:rgba(11,15,20,0.78);border-radius:999px;padding:10px 14px;font-weight:500;cursor:pointer}
-.calc-reset:hover{border-color:rgba(15,23,42,0.18)}
-.setting-card{background:var(--tool-card);border:1px solid var(--tool-border);border-radius:26px;padding:18px 18px 16px;box-shadow:0 16px 50px rgba(0,0,0,0.10);backdrop-filter:blur(10px)}
-.setting-top{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:10px}
-.setting-label{font-weight:500;letter-spacing:-0.01em}
-.setting-value{font-weight:500;font-size:1.15rem;letter-spacing:-0.01em;color:rgba(11,15,20,0.9)}
-.setting-card input[type="range"]{width:100%;accent-color:var(--accent)}
-.setting-help{margin-top:10px;font-size:0.95rem;color:rgba(11,15,20,0.62)}
-.result-card{background:rgba(255,255,255,0.82);border:1px solid rgba(15,23,42,0.14);border-radius:30px;padding:22px;box-shadow:0 22px 70px rgba(0,0,0,0.14);backdrop-filter:blur(12px)}
-.result-label{font-size:0.95rem;color:rgba(11,15,20,0.62);margin-bottom:10px}
-.result-big{display:grid;gap:6px;margin-bottom:10px}
-.result-number{font-weight:500;font-size:clamp(2.6rem,5.4vw,3.6rem);letter-spacing:-0.03em}
-.result-unit{font-size:0.95rem;color:rgba(11,15,20,0.62)}
-.calc-link{appearance:none;border:none;background:none;color:rgba(11,15,20,0.72);padding:0;font-weight:500;cursor:pointer;text-decoration:underline;text-decoration-color:rgba(11,15,20,0.22);text-underline-offset:4px}
-.calc-link:hover{text-decoration-color:rgba(11,15,20,0.52)}
-.equiv{margin-top:14px;display:grid;gap:10px}
-.equiv-row{padding:12px 14px;border-radius:18px;background:rgba(11,15,20,0.04);border:1px solid rgba(15,23,42,0.08);font-weight:500;color:rgba(11,15,20,0.82)}
-.calc-breakdown-btn{margin-top:14px;width:100%;border-radius:18px;border:1px solid rgba(15,23,42,0.12);background:rgba(255,255,255,0.65);padding:12px 14px;cursor:pointer;font-weight:500;color:rgba(11,15,20,0.82)}
-.calc-breakdown-btn:hover{border-color:rgba(15,23,42,0.22)}
-.breakdown{margin-top:10px;border-radius:18px;background:rgba(11,15,20,0.03);border:1px solid rgba(15,23,42,0.08);padding:12px 14px;display:grid;gap:10px;max-height:0;opacity:0;overflow:hidden;padding-top:0;padding-bottom:0;border-width:0;transition:max-height 260ms ease,opacity 260ms ease,padding 260ms ease,border-width 260ms ease}
-.breakdown.is-open{max-height:240px;opacity:1;padding-top:12px;padding-bottom:12px;border-width:1px}
-.breakdown-row{display:flex;justify-content:space-between;color:rgba(11,15,20,0.75);font-weight:400}
-.calc-dialog{border:1px solid rgba(15,23,42,0.14);border-radius:22px;padding:0;width:min(640px,calc(100% - 40px));box-shadow:0 30px 90px rgba(0,0,0,0.25)}
-.calc-dialog::backdrop{background:rgba(0,0,0,0.35)}
-.calc-dialog-inner{padding:18px 18px 16px}
-.calc-dialog-inner h3{margin:0 0 8px;letter-spacing:-0.02em}
-.calc-dialog-inner p{margin:0 0 10px;color:rgba(11,15,20,0.72);line-height:1.4}
-.calc-dialog-inner ul{margin:0 0 14px;padding-left:18px;color:rgba(11,15,20,0.72);line-height:1.4}
-.calc-dialog-actions{display:flex;justify-content:flex-end;gap:10px}
-.calc-anim{opacity:0;transform:translateY(12px);transition:opacity 520ms ease,transform 520ms ease;transition-delay:var(--d,0ms)}
-.calculator.is-inview .calc-anim{opacity:1;transform:translateY(0)}
-@keyframes resultPulse{0%{transform:scale(1);box-shadow:0 22px 70px rgba(0,0,0,0.14)}45%{transform:scale(1.012);box-shadow:0 24px 78px rgba(71,214,234,0.18)}100%{transform:scale(1);box-shadow:0 22px 70px rgba(0,0,0,0.14)}}
-.result-card.pulse{animation:resultPulse 520ms ease}
-.calc-outro{position:relative;z-index:7;background:var(--tool-bg);color:var(--tool-text);padding:10vh 6vw 12vh}
-.calc-outro-inner{width:min(1120px,100%);margin:0 auto}
-.calc-outro h2{margin:0 0 0.6rem;font-size:clamp(1.8rem,4vw,2.6rem);letter-spacing:-0.02em}
-.calc-outro-sub{margin:0 0 1.2rem;color:var(--tool-muted);max-width:70ch}
-.calc-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
-.calc-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:999px;padding:12px 16px;font-weight:500;cursor:pointer;text-decoration:none;border:1px solid rgba(15,23,42,0.14)}
-.calc-btn--solid{background:rgba(11,15,20,0.92);color:#fff;border-color:rgba(11,15,20,0.92)}
-.calc-btn--solid:hover{background:rgba(11,15,20,0.86)}
-.calc-btn--ghost{background:rgba(255,255,255,0.75);color:rgba(11,15,20,0.86)}
-.calc-btn--ghost:hover{border-color:rgba(15,23,42,0.22)}
-.calc-toast{margin-top:14px;color:rgba(11,15,20,0.72);font-weight:500;min-height:1.2em}
-.footer-spacer{height:90vh;background:#03161a;display:grid;place-items:center;padding:6vh 6vw}
-.footer-credit{margin:0;color:rgba(249,250,251,0.72);font-size:0.95rem;letter-spacing:0.02em;text-align:center}
-@media(max-width:900px){
-.bubbles{grid-template-columns:1fr;gap:18px;padding:10vh 0}
-.bubble{width:min(86vw,520px)}
-.calc-shell{grid-template-columns:1fr}
-.calc-results{order:-1}
-}
-@media(prefers-reduced-motion:reduce){
-.hint{display:none}
-.calc-anim{transition:none;transform:none;opacity:1}
-.result-card.pulse{animation:none}
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gargantua - Interstellar Black Hole</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #fff;
+        }
+        canvas { display: block; }
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            text-shadow: 0 0 5px rgba(0,0,0,0.8);
+            pointer-events: none;
+            user-select: none;
+        }
+        #info h1 { margin: 0; font-size: 18px; font-weight: 300; letter-spacing: 2px; }
+        #info p { margin: 5px 0 0; font-size: 12px; opacity: 0.7; font-weight: 300; }
+    </style>
 </head>
 <body>
-<div id="scene" aria-hidden="true"></div>
-
-<section class="hero" id="hero">
-<div class="hero-text" id="heroText">
-<h1>PlanetOS</h1>
-<p>Scroll to see how rising CO₂ affects oceans, ice, and fire, then estimate your footprint.</p>
-<p class="hint">Scroll ↓</p>
-</div>
-</section>
-
-<section class="transition" id="transition">
-<div class="transition-sticky">
-<div class="transition-tint" id="tint"></div>
-<div class="transition-vignette" id="vignette"></div>
-<p class="transition-hint" id="transitionHint">CO₂ doesn't just warm the air. It changes the ocean too.</p>
-</div>
-</section>
-
-<section class="reef" id="reef">
-<div class="reef-sticky" id="reefSticky">
-<img class="reef-layer layer-bg" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/12c893896-90c6-4b90-ada7-0cc76498844e.png" alt="" loading="lazy" decoding="async">
-<img class="reef-layer layer-mid" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/12c893896-90c6-4b90-ada7-0cc76498844e.png" alt="" loading="lazy" decoding="async" style="object-position:50% 60%">
-<img class="reef-layer layer-midfg" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/12c893896-90c6-4b90-ada7-0cc76498844e.png" alt="" loading="lazy" decoding="async" style="object-position:50% 75%">
-<img class="reef-layer layer-fg" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/12c893896-90c6-4b90-ada7-0cc76498844e.png" alt="" loading="lazy" decoding="async" style="object-position:50% 90%">
-<div class="reef-fog" id="reefFog"></div>
-<div class="reef-copy" id="reefCopy">
-<h2>Oceans: Warming and Acidification</h2>
-<p>Heat stress and acidity can weaken coral reefs over time.</p>
-</div>
-<div class="bubbles">
-<div class="bubble-col"><div class="bubble" id="bubbleLeft"><div class="bubble-inner"><div class="bubble-media"><img src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/14f826da3-beaf-4830-ba1f-784254f47cdf.png" alt="Coral bleaching" loading="lazy" decoding="async"></div><div class="bubble-text"><h3>Heat stress → Bleaching</h3><p>Warm spells push corals into stress, turning reefs white and fragile.</p><a class="bubble-link" href="https://oceanservice.noaa.gov/facts/coral_bleach.html" target="_blank" rel="noopener">Learn more</a></div></div></div></div>
-<div class="bubble-col"><div class="bubble" id="bubbleMid"><div class="bubble-inner"><div class="bubble-media"><img src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/1bfb7d8a7-420d-4d4c-bef8-91c949d7d8fd.png" alt="Ocean acidification" loading="lazy" decoding="async"></div><div class="bubble-text"><h3>CO₂ → Ocean acidification</h3><p>As the ocean absorbs extra CO₂, carbonate becomes less available for corals.</p><a class="bubble-link" href="https://oceanservice.noaa.gov/facts/acidification.html" target="_blank" rel="noopener">Learn more</a></div></div></div></div>
-<div class="bubble-col"><div class="bubble" id="bubbleRight"><div class="bubble-inner"><div class="bubble-media"><img src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/1243c3000-8bc2-46b5-b295-1b391fdeb349.png" alt="Reef damage" loading="lazy" decoding="async"></div><div class="bubble-text"><h3>No time to recover</h3><p>Repeated stress reduces reef resilience, so damage stacks faster than ecosystems rebuild.</p><a class="bubble-link" href="https://www.ipcc.ch/report/ar6/wg2/chapter/chapter-3/" target="_blank" rel="noopener">Learn more</a></div></div></div></div>
-</div>
-</div>
-</section>
-
-<section class="ice" id="ice">
-<div class="ice-sticky" id="iceSticky">
-<div class="ice-stage">
-<img class="ice-layer ice-bg" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/1040d9ca0-0df5-4e1c-aa53-2596b8a0b492.png" alt="" loading="lazy" decoding="async">
-<img class="ice-layer ice-mid" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/10ad70daf-4f70-4051-8d7e-16deb77a6684.png" alt="" loading="lazy" decoding="async">
-<img class="ice-layer ice-fg" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/100aa7a6f-ee8e-48b3-b539-f7144f16d135.png" alt="" loading="lazy" decoding="async">
-</div>
-<div class="ice-fog" id="iceFog"></div>
-<div class="ice-copy" id="iceCopy">
-<h2>Ice: Melting and Sea Level Rise</h2>
-<p>Warming air and oceans accelerate ice loss worldwide.</p>
-</div>
-<div class="bubbles">
-<div class="bubble-col"><div class="bubble" id="iceBubbleLeft"><div class="bubble-inner"><div class="bubble-media"><img src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/10ad70daf-4f70-4051-8d7e-16deb77a6684.png" alt="Arctic warming" loading="lazy" decoding="async"></div><div class="bubble-text"><h3>Warming from above</h3><p>CO₂ traps heat, and the Arctic warms especially fast, accelerating melt.</p><a class="bubble-link" href="https://science.nasa.gov/earth/earth-observatory/arctic-amplification-81214/" target="_blank" rel="noopener">Learn more</a></div></div></div></div>
-<div class="bubble-col"><div class="bubble" id="iceBubbleMid"><div class="bubble-inner"><div class="bubble-media"><img src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/100aa7a6f-ee8e-48b3-b539-f7144f16d135.png" alt="Ice shelf melting" loading="lazy" decoding="async"></div><div class="bubble-text"><h3>Melting from below</h3><p>Warmer ocean water undercuts ice shelves, letting glaciers speed up.</p><a class="bubble-link" href="https://nsidc.org/learn/parts-cryosphere/ice-shelves/science-ice-shelves" target="_blank" rel="noopener">Learn more</a></div></div></div></div>
-<div class="bubble-col"><div class="bubble" id="iceBubbleRight"><div class="bubble-inner"><div class="bubble-media"><img src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/164733a9a-af15-4a71-8632-e72e69b80e80.png" alt="Sea level rise" loading="lazy" decoding="async"></div><div class="bubble-text"><h3>Global ripple effects</h3><p>Ice-sheet loss contributes to sea level rise and long-term coastal risks.</p><a class="bubble-link" href="https://science.nasa.gov/earth/explore/earth-indicators/ice-sheets/" target="_blank" rel="noopener">Learn more</a></div></div></div></div>
-</div>
-</div>
-</section>
-
-<section class="forest" id="forest">
-<div class="forest-sticky" id="forestSticky">
-<div class="forest-stage">
-<img class="forest-layer forest-bg" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/14dfb6f24-3074-4ba7-b232-0a0ba0229313.png" alt="" loading="lazy" decoding="async">
-<img class="forest-layer forest-backmid" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/14dfb6f24-3074-4ba7-b232-0a0ba0229313.png" alt="" loading="lazy" decoding="async" style="object-position:50% 40%">
-<img class="forest-layer forest-mid" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/14dfb6f24-3074-4ba7-b232-0a0ba0229313.png" alt="" loading="lazy" decoding="async" style="object-position:50% 50%">
-<img class="forest-layer forest-midfg" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/14dfb6f24-3074-4ba7-b232-0a0ba0229313.png" alt="" loading="lazy" decoding="async" style="object-position:50% 60%">
-<img class="forest-layer forest-frontmid" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/14dfb6f24-3074-4ba7-b232-0a0ba0229313.png" alt="" loading="lazy" decoding="async" style="object-position:50% 70%">
-<img class="forest-layer forest-fg" src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/14dfb6f24-3074-4ba7-b232-0a0ba0229313.png" alt="" loading="lazy" decoding="async" style="object-position:50% 80%">
-</div>
-<div class="forest-fog" id="forestFog"></div>
-<div class="forest-copy" id="forestCopy">
-<h2>Fire: Hotter, Drier Conditions</h2>
-<p>Warming increases drought risk and extends fire seasons.</p>
-</div>
-<div class="bubbles">
-<div class="bubble-col"><div class="bubble" id="forestBubbleLeft"><div class="bubble-inner"><div class="bubble-media"><img src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/1aa2a4476-af5a-4cdb-b097-0755499a9a1f.png" alt="Drought conditions" loading="lazy" decoding="async"></div><div class="bubble-text"><h3>Heat dries the fuel</h3><p>Hotter conditions dry out soils and vegetation, making fires more intense.</p><a class="bubble-link" href="https://www.noaa.gov/noaa-wildfire/wildfire-climate-connection" target="_blank" rel="noopener">Learn more</a></div></div></div></div>
-<div class="bubble-col"><div class="bubble" id="forestBubbleMid"><div class="bubble-inner"><div class="bubble-media"><img src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/1f84079de-beed-461f-a8bb-e19de94ed796.png" alt="Extended fire season" loading="lazy" decoding="async"></div><div class="bubble-text"><h3>Longer fire seasons</h3><p>Warming and drought lengthen the window when fuels are dry enough to burn.</p><a class="bubble-link" href="https://www.climatehubs.usda.gov/hubs/northwest/topic/climate-change-and-wildfire-idaho-oregon-and-washington" target="_blank" rel="noopener">Learn more</a></div></div></div></div>
-<div class="bubble-col"><div class="bubble" id="forestBubbleRight"><div class="bubble-inner"><div class="bubble-media"><img src="https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/15eadf425-e11a-4e42-82f6-3136c55c4bbc.png" alt="Extreme fire spread" loading="lazy" decoding="async"></div><div class="bubble-text"><h3>Extreme ignition + spread</h3><p>Hot, dry, windy weather increases ignition risk and helps fires spread rapidly.</p><a class="bubble-link" href="https://www.noaa.gov/stories/ask-scientist-how-can-weather-spark-and-spread-wildfires" target="_blank" rel="noopener">Learn more</a></div></div></div></div>
-</div>
-</div>
-</section>
-
-<div class="tool-bridge"></div>
-
-<section class="calculator" id="calculator">
-<div class="calculator-sticky">
-<div class="calc-shell">
-<div class="calc-head calc-anim" style="--d:0ms">
-<h2>Your Carbon Footprint</h2>
-<p class="calc-sub">Adjust a few habits. See an estimated annual CO₂ change.</p>
-<button class="calc-reset" id="calcReset" type="button">Reset to typical</button>
-</div>
-<div class="calc-results calc-anim" style="--d:80ms">
-<div class="result-card" id="resultCard">
-<p class="result-label">Estimated annual reduction</p>
-<div class="result-big">
-<span class="result-number" id="co2Big">0</span>
-<span class="result-unit">kg CO₂ / year</span>
-</div>
-<button class="calc-link" id="calcHowBtn" type="button">How we estimate this</button>
-<div class="equiv">
-<div class="equiv-row" id="treesRow">≈ 0 trees grown for a year</div>
-<div class="equiv-row" id="kmRow">≈ 0 km of driving avoided</div>
-</div>
-<button class="calc-breakdown-btn" id="calcBreakdownBtn" type="button" aria-expanded="false">Show breakdown</button>
-<div class="breakdown" id="calcBreakdown" aria-hidden="true">
-<div class="breakdown-row"><span>Diet</span><span id="calcDiet">0 kg</span></div>
-<div class="breakdown-row"><span>Transport</span><span id="calcTransport">0 kg</span></div>
-<div class="breakdown-row"><span>Cooling</span><span id="calcCooling">0 kg</span></div>
-</div>
-</div>
-</div>
-<div class="calc-settings calc-anim" style="--d:160ms">
-<div class="setting-card">
-<div class="setting-top"><span class="setting-label">Meat-free meals per week</span><span class="setting-value" id="mealsVal">0 / 21</span></div>
-<input type="range" id="mealsInput" min="0" max="21" value="0" step="1">
-<p class="setting-help" id="mealsHelp">No change from baseline.</p>
-</div>
-<div class="setting-card">
-<div class="setting-top"><span class="setting-label">Public transport commutes per week</span><span class="setting-value" id="commutesVal">0 trips/week</span></div>
-<input type="range" id="commutesInput" min="0" max="14" value="0" step="1">
-<p class="setting-help" id="commutesHelp">Replacing car rides has a big impact.</p>
-</div>
-<div class="setting-card">
-<div class="setting-top"><span class="setting-label">Average home AC temperature</span><span class="setting-value" id="acVal">24°C</span></div>
-<input type="range" id="acInput" min="18" max="30" value="24" step="1">
-<p class="setting-help" id="acHelp">Higher temperature usually reduces energy use.</p>
-</div>
-</div>
-</div>
-</div>
-</section>
-
-<dialog class="calc-dialog" id="calcDialog">
-<div class="calc-dialog-inner">
-<h3>How we estimate this</h3>
-<p>We use common averages to estimate annual change. Real impact varies by location and energy grid.</p>
-<ul>
-<li><strong>Diet:</strong> fewer meat-based meals tends to reduce emissions.</li>
-<li><strong>Transport:</strong> swapping car trips for public transport can reduce emissions.</li>
-<li><strong>Cooling:</strong> warmer thermostat settings often reduce electricity use.</li>
-</ul>
-<div class="calc-dialog-actions">
-<button class="calc-btn calc-btn--ghost" id="calcCloseBtn" type="button">Close</button>
-</div>
-</div>
-</dialog>
-
-<section class="calc-outro" id="calcOutro">
-<div class="calc-outro-inner">
-<h2 class="calc-anim" style="--d:0ms">Your plan could save <span id="calcOutroBig">0</span> kg CO₂/year.</h2>
-<p class="calc-outro-sub calc-anim" style="--d:80ms">Small weekly habits can add up. Keep exploring, and share what you learn.</p>
-<div class="calc-cta calc-anim" style="--d:160ms">
-<button class="calc-btn calc-btn--solid" id="calcSaveBtn" type="button">Save my plan</button>
-<button class="calc-btn calc-btn--ghost" id="calcShareBtn" type="button">Share this</button>
-<a class="calc-btn calc-btn--ghost" href="#hero">Explore the next action</a>
-</div>
-<p class="calc-toast" id="calcToast" aria-live="polite"></p>
-</div>
-</section>
-
-<footer class="footer-spacer">
-<p class="footer-credit">Made by Enzhi and Qixin</p>
-</footer>
-
-<script type="module">
-import*as THREE from"https://unpkg.com/three@0.161.0/build/three.module.js";
-
-/* ── DOM cache (single lookup) ── */
-const $=id=>document.getElementById(id);
-const heroText=$("heroText"),transitionEl=$("transition"),reefEl=$("reef"),
-iceEl=$("ice"),forestEl=$("forest"),calculatorEl=$("calculator"),
-calcOutroEl=$("calcOutro"),tint=$("tint"),vignette=$("vignette"),
-transitionHint=$("transitionHint"),reefSticky=$("reefSticky"),
-reefFog=$("reefFog"),reefCopy=$("reefCopy"),
-iceSticky=$("iceSticky"),iceFog=$("iceFog"),
-forestSticky=$("forestSticky"),forestFog=$("forestFog"),forestCopy=$("forestCopy");
-
-const reefLayers={bg:document.querySelector(".layer-bg"),mid:document.querySelector(".layer-mid"),midfg:document.querySelector(".layer-midfg"),fg:document.querySelector(".layer-fg")};
-const bubbles={left:$("bubbleLeft"),mid:$("bubbleMid"),right:$("bubbleRight")};
-const iceLayers={bg:document.querySelector(".ice-bg"),mid:document.querySelector(".ice-mid"),fg:document.querySelector(".ice-fg")};
-const iceBubbles={left:$("iceBubbleLeft"),mid:$("iceBubbleMid"),right:$("iceBubbleRight")};
-const forestLayers={bg:document.querySelector(".forest-bg"),backmid:document.querySelector(".forest-backmid"),mid:document.querySelector(".forest-mid"),midfg:document.querySelector(".forest-midfg"),frontmid:document.querySelector(".forest-frontmid"),fg:document.querySelector(".forest-fg")};
-const forestBubbles={left:$("forestBubbleLeft"),mid:$("forestBubbleMid"),right:$("forestBubbleRight")};
-
-/* Calculator DOM */
-const mealsInput=$("mealsInput"),mealsVal=$("mealsVal"),mealsHelp=$("mealsHelp"),
-commutesInput=$("commutesInput"),commutesVal=$("commutesVal"),commutesHelp=$("commutesHelp"),
-acInput=$("acInput"),acVal=$("acVal"),acHelp=$("acHelp"),
-resultCard=$("resultCard"),co2Big=$("co2Big"),treesRow=$("treesRow"),kmRow=$("kmRow"),
-calcHowBtn=$("calcHowBtn"),calcDialog=$("calcDialog"),calcCloseBtn=$("calcCloseBtn"),
-calcBreakdownBtn=$("calcBreakdownBtn"),calcBreakdown=$("calcBreakdown"),
-calcDiet=$("calcDiet"),calcTransport=$("calcTransport"),calcCooling=$("calcCooling"),
-calcReset=$("calcReset"),calcOutroBig=$("calcOutroBig"),
-calcSaveBtn=$("calcSaveBtn"),calcShareBtn=$("calcShareBtn"),calcToast=$("calcToast");
-
-const reduceMotion=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const isMobile=window.innerWidth<720;
-
-/* ── Math helpers (inlined for perf) ── */
-const clamp01=v=>v<0?0:v>1?1:v;
-const lerp=(a,b,t)=>a+(b-a)*t;
-const easeInOut=t=>t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
-const easeOut=t=>1-Math.pow(1-t,3);
-const invLerp=(a,b,v)=>clamp01((v-a)/Math.max(1e-6,b-a));
-
-/* ── Color helpers with cache ── */
-const _hexCache=new Map();
-function hexToRgb(hex){
-if(_hexCache.has(hex))return _hexCache.get(hex);
-const h=hex.replace("#","").trim();
-const n=parseInt(h.length===3?h.split("").map(c=>c+c).join(""):h,16);
-const r={r:(n>>16)&255,g:(n>>8)&255,b:n&255};
-_hexCache.set(hex,r);
-return r;
-}
-function rgbToHex({r,g,b}){
-const to=x=>x.toString(16).padStart(2,"0");
-return`#${to(r)}${to(g)}${to(b)}`;
-}
-function lerpColor(a,b,t){
-const A=hexToRgb(a),B=hexToRgb(b);
-return rgbToHex({r:Math.round(lerp(A.r,B.r,t)),g:Math.round(lerp(A.g,B.g,t)),b:Math.round(lerp(A.b,B.b,t))});
-}
-
-/* ── Three.js setup ── */
-const container=$("scene");
-const renderer=new THREE.WebGLRenderer({antialias:!isMobile,alpha:true,powerPreference:"high-performance"});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio,isMobile?1.5:2));
-renderer.setSize(window.innerWidth,window.innerHeight);
-renderer.setClearColor(0x000000,0);
-container.appendChild(renderer.domElement);
-
-const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,0.1,200);
-camera.position.set(0,0,isMobile?3.4:2.8);
-
-scene.add(new THREE.AmbientLight(0xffffff,0.55));
-const sun=new THREE.DirectionalLight(0xffffff,1.1);
-sun.position.set(6,3,6);
-scene.add(sun);
-
-const earthGroup=new THREE.Group();
-scene.add(earthGroup);
-
-const earthGeometry=new THREE.SphereGeometry(1,64,64);
-const loader=new THREE.TextureLoader();
-const earthTexture=loader.load("https://image.qwenlm.ai/public_source/2c7a9148-8d85-42b8-8041-28c18470c0ab/1935f7fd2-0d4d-494f-843a-53eeb6bb2c98.png");
-earthTexture.colorSpace=THREE.SRGBColorSpace;
-const earthMaterial=new THREE.MeshStandardMaterial({map:earthTexture,roughness:0.9,metalness:0.0,transparent:true,opacity:1});
-const earthMesh=new THREE.Mesh(earthGeometry,earthMaterial);
-earthGroup.add(earthMesh);
-
-const glowGeometry=new THREE.SphereGeometry(1.03,64,64);
-const glowMaterial=new THREE.MeshBasicMaterial({color:0x7fbfff,transparent:true,opacity:0.085});
-const glow=new THREE.Mesh(glowGeometry,glowMaterial);
-earthGroup.add(glow);
-
-/* Stars — reduced count on mobile */
-const STAR_COUNT=isMobile?1200:2600;
-const positions=new Float32Array(STAR_COUNT*3);
-for(let i=0;i<STAR_COUNT;i++){
-const u=Math.random(),v=Math.random();
-const theta=2*Math.PI*u,phi=Math.acos(2*v-1),r=60;
-positions[i*3]=r*Math.sin(phi)*Math.cos(theta);
-positions[i*3+1]=r*Math.sin(phi)*Math.sin(theta);
-positions[i*3+2]=r*Math.cos(phi);
-}
-const starsGeom=new THREE.BufferGeometry();
-starsGeom.setAttribute("position",new THREE.Float32BufferAttribute(positions,3));
-const starsMat=new THREE.PointsMaterial({size:0.055,sizeAttenuation:true,transparent:true,opacity:1});
-const starsPoints=new THREE.Points(starsGeom,starsMat);
-scene.add(starsPoints);
-
-/* ── Offsets ── */
-let reefOffsetsPx={bg:0,mid:0,midfg:0,fg:0};
-let iceOffsetsPx={bg:0,mid:0,fg:0};
-let forestOffsetsPx={bg:0,backmid:0,mid:0,midfg:0,frontmid:0,fg:0};
-
-function computeOffsets(){
-const vh=window.innerHeight/100;
-reefOffsetsPx={bg:5*vh,mid:9*vh,midfg:13*vh,fg:18*vh};
-iceOffsetsPx={bg:0,mid:20*vh,fg:60*vh};
-forestOffsetsPx={bg:4*vh,backmid:6*vh,mid:9*vh,midfg:13*vh,frontmid:17*vh,fg:22*vh};
-}
-computeOffsets();
-
-/* ── Section metrics (cached, recomputed on resize) ── */
-const metrics={transition:{start:0,end:1,range:1},reef:{start:0,end:1,range:1},ice:{start:0,end:1,range:1},forest:{start:0,end:1,range:1},calculator:{start:0,end:1,range:1},driver:{start:0,end:1,range:1}};
-
-function computeSectionMetrics(el){
-const start=el.offsetTop,end=start+el.offsetHeight-window.innerHeight;
-return{start,end,range:Math.max(1,end-start)};
-}
-function computeMetrics(){
-metrics.transition=computeSectionMetrics(transitionEl);
-metrics.reef=computeSectionMetrics(reefEl);
-metrics.ice=computeSectionMetrics(iceEl);
-metrics.forest=computeSectionMetrics(forestEl);
-metrics.calculator=computeSectionMetrics(calculatorEl);
-metrics.driver.start=0;
-metrics.driver.end=metrics.transition.end;
-metrics.driver.range=Math.max(1,metrics.driver.end-metrics.driver.start);
-}
-computeMetrics();
-
-function sectionProgress(m){return clamp01((scrollY-m.start)/m.range)}
-
-/* ── Scroll state (read once per frame) ── */
-let scrollY=0;
-let needsUpdate=true;
-
-function onScroll(){scrollY=window.scrollY;needsUpdate=true}
-window.addEventListener("scroll",onScroll,{passive:true});
-
-/* ── Resize (debounced) ── */
-let resizeTimer=0;
-window.addEventListener("resize",()=>{
-clearTimeout(resizeTimer);
-resizeTimer=setTimeout(()=>{
-renderer.setSize(window.innerWidth,window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio,isMobile?1.5:2));
-camera.aspect=window.innerWidth/window.innerHeight;
-camera.position.set(0,0,window.innerWidth<720?3.4:2.8);
-camera.updateProjectionMatrix();
-computeOffsets();
-computeMetrics();
-},100);
-},{passive:true});
-
-window.addEventListener("load",()=>{computeOffsets();computeMetrics()},{passive:true});
-
-/* ── UI update helpers ── */
-function setDomOpacity(el,v){if(el)el.style.opacity=String(v)}
-function setLayersOpacity(layers,v){for(const k in layers){const el=layers[k];if(el)el.style.opacity=String(v)}}
-
-/* ── Transition ── */
-function updateTransitionUI(p){
-const heroFade=1-easeOut(invLerp(0.0,0.25,p));
-heroText.style.opacity=String(heroFade);
-heroText.style.transform=`translateY(${lerp(0,-10,1-heroFade)}px)`;
-earthGroup.scale.setScalar(lerp(1.0,1.15,easeOut(invLerp(0.0,0.4,p))));
-const b=invLerp(0.4,0.8,p);
-setDomOpacity(tint,lerp(0,0.75,easeInOut(b)));
-setDomOpacity(vignette,lerp(0.0,0.55,easeInOut(b)));
-const c=invLerp(0.8,1.0,p);
-const earthAlpha=1-easeOut(c);
-earthMaterial.opacity=earthAlpha;
-glowMaterial.opacity=0.085*earthAlpha;
-starsMat.opacity=lerp(1.0,0.0,easeOut(invLerp(0.7,1.0,p)));
-setDomOpacity(transitionHint,easeOut(invLerp(0.86,1.0,p)));
-}
-
-/* ── Bubbles ── */
-function animateBubbles(elMap,bubbleP,speeds){
-const t=easeInOut(bubbleP);
-const fadeIn=easeOut(invLerp(0.0,0.10,bubbleP));
-const fadeOut=1-easeOut(invLerp(0.92,1.0,bubbleP));
-const opacity=fadeIn*fadeOut;
-const apply=(el,speed)=>{
-if(!el)return;
-const p=clamp01(t*speed);
-el.style.transform=`translateY(${lerp(130,-130,p)}vh)`;
-el.style.opacity=String(opacity);
-};
-apply(elMap.left,speeds.left);
-apply(elMap.mid,speeds.mid);
-apply(elMap.right,speeds.right);
-}
-
-/* ── Reef ── */
-function updateReefScene(){
-const yLocal=scrollY-metrics.reef.start;
-const settlePx=0.35*window.innerHeight;
-const bubblePx=2.6*window.innerHeight;
-const maxLocal=metrics.reef.range;
-const exitPx=Math.max(1,maxLocal-settlePx-bubblePx);
-const settleT=easeInOut(clamp01(yLocal/settlePx));
-
-reefLayers.bg.style.transform=`translateY(${lerp(reefOffsetsPx.bg,0,settleT)}px)`;
-reefLayers.mid.style.transform=`translateY(${lerp(reefOffsetsPx.mid,0,settleT)}px)`;
-reefLayers.midfg.style.transform=`translateY(${lerp(reefOffsetsPx.midfg,0,settleT)}px)`;
-reefLayers.fg.style.transform=`translateY(${lerp(reefOffsetsPx.fg,0,settleT)}px)`;
-
-const top=lerpColor("#47d6ea","#0a5f6c",settleT);
-const mid=lerpColor("#0a5f6c","#06404a",settleT);
-const bot=lerpColor("#042d34","#02161b",settleT);
-reefSticky.style.background=`linear-gradient(to bottom,${top} 0%,${mid} 55%,${bot} 100%)`;
-reefFog.style.opacity=String(lerp(0.0,0.55,settleT));
-
-const bubbleP=clamp01((yLocal-settlePx)/bubblePx);
-animateBubbles(bubbles,bubbleP,{left:0.8,mid:1.3,right:1.05});
-
-const exitP=clamp01((yLocal-(settlePx+bubblePx))/exitPx);
-if(exitP>0){
-const a=1-easeOut(exitP);
-setLayersOpacity(reefLayers,a);
-if(reefCopy){reefCopy.style.opacity=String(0.92*a);reefCopy.style.transform=`translateX(-50%) translateY(${lerp(0,-18,easeOut(exitP))}px)`}
-reefSticky.style.background="#02161b";
-reefFog.style.opacity=String(lerp(0.55,0.8,easeOut(exitP)));
-}else{
-setLayersOpacity(reefLayers,1);
-if(reefCopy){reefCopy.style.opacity="0.92";reefCopy.style.transform="translateX(-50%)"}
-}
-}
-
-/* ── Ice ── */
-function updateIceScene(){
-const yLocal=scrollY-metrics.ice.start;
-const vh=window.innerHeight;
-const skyPx=0.40*vh;
-const revealStartPx=0.15*vh;
-const settlePx=0.55*vh;
-const bubblePx=2.6*vh;
-const maxLocal=metrics.ice.range;
-const exitStart=revealStartPx+settlePx+bubblePx;
-const exitPx=Math.max(1,maxLocal-exitStart);
-
-const skyT=easeInOut(clamp01(yLocal/skyPx));
-const skyTop=lerpColor("#02161b","#d9f6ff",skyT);
-const skyMid=lerpColor("#02161b","#93d7f0",skyT);
-const skyBot=lerpColor("#02161b","#0b5b73",skyT);
-
-const revealT=easeOut(clamp01((yLocal-revealStartPx)/Math.max(1e-6,0.28*vh)));
-setLayersOpacity(iceLayers,revealT);
-
-const settleRaw=clamp01((yLocal-revealStartPx)/Math.max(1e-6,settlePx));
-const baseT=easeInOut(settleRaw);
-const fgT=Math.pow(baseT,0.58);
-
-iceLayers.bg.style.transform="translateY(0px)";
-iceLayers.mid.style.transform=`translateY(${lerp(iceOffsetsPx.mid,0,baseT)}px)`;
-const fgScale=lerp(1.55,1.35,baseT);
-const fgY=lerp(iceOffsetsPx.fg,0,fgT);
-iceLayers.fg.style.transform=`translateY(${fgY}px) scale(${fgScale})`;
-
-const bubbleP=clamp01((yLocal-(revealStartPx+settlePx))/bubblePx);
-animateBubbles(iceBubbles,bubbleP,{left:0.8,mid:1.3,right:1.05});
-
-const exitP=clamp01((yLocal-exitStart)/exitPx);
-const exitT=easeOut(exitP);
-const iceAlpha=1-exitT;
-const forestBase="#bfe9ff";
-const outTop=lerpColor(skyTop,forestBase,exitT);
-const outMid=lerpColor(skyMid,forestBase,exitT);
-const outBot=lerpColor(skyBot,forestBase,exitT);
-iceSticky.style.background=`linear-gradient(to bottom,${outTop} 0%,${outMid} 55%,${outBot} 100%)`;
-setLayersOpacity(iceLayers,revealT*iceAlpha);
-setDomOpacity(iceFog,lerp(0.02,0.22,skyT)*iceAlpha);
-}
-
-/* ─ Forest ── */
-function updateForestScene(){
-const yLocal=scrollY-metrics.forest.start;
-const vh=window.innerHeight;
-const base="#bfe9ff",skyTop="#d9f6ff",skyMid="#a9e6ff",skyBot="#78c7ef";
-const revealStartPx=0.10*vh,revealPx=0.28*vh,settlePx=0.70*vh,bubblePx=2.6*vh;
-const maxLocal=metrics.forest.range;
-const exitStart=revealStartPx+settlePx+bubblePx;
-const exitPx=Math.max(1,maxLocal-exitStart);
-const exitP=clamp01((yLocal-exitStart)/exitPx);
-const exitT=easeOut(exitP);
-const forestAlpha=1-exitT;
-
-const bgT=easeInOut(clamp01(yLocal/(0.55*vh)));
-const top0=lerpColor(base,skyTop,bgT),mid0=lerpColor(base,skyMid,bgT),bot0=lerpColor(base,skyBot,bgT);
-const white="#ffffff";
-const top=lerpColor(top0,white,exitT),mid=lerpColor(mid0,white,exitT),bot=lerpColor(bot0,white,exitT);
-forestSticky.style.background=`linear-gradient(to bottom,${top} 0%,${mid} 55%,${bot} 100%)`;
-setDomOpacity(forestFog,lerp(0.0,0.22,bgT)*forestAlpha);
-
-const revealT=easeOut(clamp01((yLocal-revealStartPx)/Math.max(1e-6,revealPx)));
-setLayersOpacity(forestLayers,revealT*forestAlpha);
-
-const settleT=easeInOut(clamp01((yLocal-revealStartPx)/Math.max(1e-6,settlePx)));
-forestLayers.bg.style.transform=`translateY(${lerp(forestOffsetsPx.bg,0,settleT)}px)`;
-forestLayers.backmid.style.transform=`translateY(${lerp(forestOffsetsPx.backmid,0,settleT)}px)`;
-forestLayers.mid.style.transform=`translateY(${lerp(forestOffsetsPx.mid,0,settleT)}px)`;
-forestLayers.midfg.style.transform=`translateY(${lerp(forestOffsetsPx.midfg,0,settleT)}px)`;
-forestLayers.frontmid.style.transform=`translateY(${lerp(forestOffsetsPx.frontmid,0,settleT)}px)`;
-forestLayers.fg.style.transform=`translateY(${lerp(forestOffsetsPx.fg,0,settleT)}px)`;
-
-const bubbleStart=revealStartPx+settlePx;
-const bubbleP=clamp01((yLocal-bubbleStart)/bubblePx);
-animateBubbles(forestBubbles,bubbleP,{left:0.8,mid:1.3,right:1.05});
-
-if(forestCopy){
-const copyIn=easeOut(revealT);
-const yIn=lerp(10,0,copyIn),yOut=lerp(0,-18,exitT);
-forestCopy.style.opacity=String(0.92*revealT*forestAlpha);
-forestCopy.style.transform=`translateX(-50%) translateY(${yIn+yOut}px)`;
-}
-}
-
-/* ── Calculator engine ── */
-const engine={baselineMeals:2,baselineCommutes:2,baselineAC:24,kgPerMeal:45,kgPerCommute:120,kgPerDeg:90};
-let lastResult={total:0,diet:0,transport:0,cooling:0};
-
-function computeImpact(meals,commutes,ac){
-const diet=(meals-engine.baselineMeals)*engine.kgPerMeal;
-const transport=(commutes-engine.baselineCommutes)*engine.kgPerCommute;
-const cooling=(engine.baselineAC-ac)*engine.kgPerDeg;
-const total=Math.max(0,Math.round(diet+transport+cooling));
-return{total,diet:Math.max(0,Math.round(diet)),transport:Math.max(0,Math.round(transport)),cooling:Math.max(0,Math.round(cooling))};
-}
-
-function animateNumber(el,from,to,ms=520){
-if(!el)return;
-const start=performance.now();
-const step=now=>{
-const t=clamp01((now-start)/ms);
-el.textContent=String(Math.round(lerp(from,to,easeOut(t))));
-if(t<1)requestAnimationFrame(step);
-};
-requestAnimationFrame(step);
-}
-
-function updateCalculatorUI(next){
-if(!co2Big)return;
-animateNumber(co2Big,lastResult.total,next.total,560);
-animateNumber(calcOutroBig,lastResult.total,next.total,560);
-treesRow.textContent=`≈ ${Math.round(next.total/21)} trees grown for a year`;
-kmRow.textContent=`≈ ${Math.round(next.total/0.17)} km of driving avoided`;
-calcDiet.textContent=`${next.diet} kg`;
-calcTransport.textContent=`${next.transport} kg`;
-calcCooling.textContent=`${next.cooling} kg`;
-if(resultCard){resultCard.classList.remove("pulse");void resultCard.offsetWidth;resultCard.classList.add("pulse")}
-lastResult=next;
-}
-
-function readInputs(){return{meals:Number(mealsInput?.value??0),commutes:Number(commutesInput?.value??0),ac:Number(acInput?.value??24)}}
-
-function helperMeals(v){if(v===0)return"No change from baseline.";if(v>=14)return"Mostly plant-based week.";if(v>=7)return"About 1 meat-free meal per day.";return"Small weekly shift."}
-
-function syncInputsUI(){
-const{meals,commutes,ac}=readInputs();
-mealsVal.textContent=`${meals} / 21`;
-mealsHelp.textContent=helperMeals(meals);
-commutesVal.textContent=`${commutes} trips/week`;
-acVal.textContent=`${ac}°C`;
-updateCalculatorUI(computeImpact(meals,commutes,ac));
-}
-
-mealsInput?.addEventListener("input",syncInputsUI,{passive:true});
-commutesInput?.addEventListener("input",syncInputsUI,{passive:true});
-acInput?.addEventListener("input",syncInputsUI,{passive:true});
-
-calcReset?.addEventListener("click",()=>{
-mealsInput.value=String(engine.baselineMeals);
-commutesInput.value=String(engine.baselineCommutes);
-acInput.value=String(engine.baselineAC);
-syncInputsUI();
-});
-
-calcHowBtn?.addEventListener("click",()=>calcDialog?.showModal());
-calcCloseBtn?.addEventListener("click",()=>calcDialog?.close());
-
-calcBreakdownBtn?.addEventListener("click",()=>{
-if(!calcBreakdown)return;
-const open=calcBreakdown.classList.toggle("is-open");
-calcBreakdown.setAttribute("aria-hidden",open?"false":"true");
-calcBreakdownBtn.textContent=open?"Hide breakdown":"Show breakdown";
-});
-
-calcSaveBtn?.addEventListener("click",()=>{
-const plan=readInputs();
-try{localStorage.setItem("planetsos_plan",JSON.stringify(plan))}catch(e){}
-if(calcToast)calcToast.textContent="Saved. You can come back anytime.";
-});
-
-calcShareBtn?.addEventListener("click",async()=>{
-const plan=readInputs();
-const text=`PlanetOS plan: ${plan.meals} meat-free meals/week, ${plan.commutes} public transport trips/week, AC ${plan.ac}°C.`;
-try{await navigator.clipboard.writeText(text);if(calcToast)calcToast.textContent="Copied to clipboard."}
-catch{if(calcToast)calcToast.textContent="Copy failed — your browser may block clipboard on file:// URLs."}
-});
-
-syncInputsUI();
-
-/* Calculator in-view trigger */
-if(calculatorEl&&"IntersectionObserver"in window){
-const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)calculatorEl.classList.add("is-inview")})},{threshold:0.35});
-io.observe(calculatorEl);
-}
-
-/* ── Page Visibility: pause rendering when hidden ── */
-let isVisible=true;
-document.addEventListener("visibilitychange",()=>{isVisible=!document.hidden});
-
-/* ── Main animation loop (single rAF, batched) ── */
-const MIN_RAD=THREE.MathUtils.degToRad(-30);
-const MAX_RAD=THREE.MathUtils.degToRad(30);
-let currentRot=MIN_RAD,targetRot=MIN_RAD;
-let lastFrameTime=0;
-const FRAME_BUDGET=1000/60;
-
-function frame(now){
-requestAnimationFrame(frame);
-
-/* Throttle to ~60fps max */
-if(now-lastFrameTime<FRAME_BUDGET*0.9)return;
-lastFrameTime=now;
-
-if(!isVisible)return;
-
-if(reduceMotion){renderer.render(scene,camera);return}
-
-/* Read scroll once */
-const driveP=sectionProgress(metrics.driver);
-targetRot=lerp(MIN_RAD,MAX_RAD,driveP);
-currentRot=lerp(currentRot,targetRot,0.12);
-
-earthGroup.rotation.y+=0.0008;
-earthMesh.rotation.y=currentRot;
-glow.rotation.y=currentRot;
-
-/* Batch all UI updates */
-updateTransitionUI(sectionProgress(metrics.transition));
-updateReefScene();
-updateIceScene();
-updateForestScene();
-
-renderer.render(scene,camera);
-}
-requestAnimationFrame(frame);
-</script>
+    <div id="info">
+        <h1>GARGANTUA</h1>
+        <p>Drag to orbit. Scroll to zoom.</p>
+    </div>
+
+    <!-- Import Map for Three.js ES Modules -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+        // --- SCENE & RENDERER SETUP ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 4, -18); // Start slightly above and behind
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.0;
+        document.body.appendChild(renderer.domElement);
+
+        // --- POST PROCESSING (BLOOM) ---
+        const composer = new EffectComposer(renderer);
+        composer.addPass(new RenderPass(scene, camera));
+        const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.2, 0.6, 0.1);
+        composer.addPass(bloomPass);
+
+        // --- CONTROLS ---
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.minDistance = 5;
+        controls.maxDistance = 60;
+
+        // --- SHADER UNIFORMS ---
+        const uniforms = {
+            uTime: { value: 0.0 },
+            uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+            uCameraPos: { value: new THREE.Vector3() },
+            uCameraMat: { value: new THREE.Matrix4() },
+            uFov: { value: 55.0 }
+        };
+
+        // --- GLSL SHADER DEFINITIONS ---
+        const vertexShader = `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = vec4(position, 1.0);
+            }
+        `;
+
+        const fragmentShader = `
+            precision highp float;
+            
+            varying vec2 vUv;
+            uniform float uTime;
+            uniform vec2 uResolution;
+            uniform vec3 uCameraPos;
+            uniform mat4 uCameraMat;
+            uniform float uFov;
+
+            // Constants
+            #define STEPS 300          // Raymarching steps
+            #define BH_RS 1.0          // Schwarzschild Radius (Event Horizon)
+            #define DISK_INNER 2.0     // Inner stable orbit of accretion disk
+            #define DISK_OUTER 10.0    // Outer radius of accretion disk
+            #define DISK_THICKNESS 0.4 // Vertical thickness of the disk
+
+            // --- NOISE & FRACTAL FUNCTIONS ---
+            // Hash function for procedural noise
+            float hash(vec3 p) {
+                p = fract(p * 0.3183099 + 0.1);
+                p *= 17.0;
+                return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+            }
+
+            // 3D Value noise
+            float noise(vec3 x) {
+                vec3 i = floor(x);
+                vec3 f = fract(x);
+                f = f * f * (3.0 - 2.0 * f);
+                return mix(mix(mix(hash(i + vec3(0,0,0)), hash(i + vec3(1,0,0)), f.x),
+                               mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
+                           mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),
+                               mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);
+            }
+
+            // Fractal Brownian Motion for turbulent plasma texture
+            float fbm(vec3 p) {
+                float v = 0.0;
+                float a = 0.5;
+                for (int i = 0; i < 5; i++) {
+                    v += a * noise(p);
+                    p *= 2.1;
+                    a *= 0.5;
+                }
+                return v;
+            }
+
+            // --- PROCEDURAL STARFIELD ---
+            vec3 starfield(vec3 dir) {
+                vec3 col = vec3(0.0);
+                // Layer 1: Distant background stars
+                vec3 p = dir * 250.0;
+                vec3 id = floor(p);
+                float h = hash(id);
+                if (h > 0.98) {
+                    float d = length(fract(p) - 0.5);
+                    float brightness = (h - 0.98) * 60.0;
+                    col += smoothstep(0.1, 0.0, d) * brightness * vec3(0.8, 0.9, 1.0);
+                }
+                // Layer 2: Closer, colorful nebula dust
+                float n = fbm(dir * 5.0 + uTime * 0.01);
+                col += vec3(0.1, 0.03, 0.2) * pow(n, 3.0) * 0.4;
+                return col;
+            }
+
+            void main() {
+                // Calculate screen UV with aspect ratio correction
+                vec2 uv = (vUv - 0.5) * 2.0;
+                uv.x *= uResolution.x / uResolution.y;
+
+                // Set up camera ray
+                float fovTan = tan(radians(uFov) * 0.5);
+                // uCameraMat includes translation, but by putting w=0.0, we extract just the rotation/direction
+                vec3 rayDir = normalize((uCameraMat * vec4(uv * fovTan, -1.0, 0.0)).xyz);
+                vec3 pos = uCameraPos;
+
+                // Conserved angular momentum (h = |r x v|) for the light ray.
+                // In Schwarzschild metric, this remains constant.
+                float h2 = pow(length(cross(pos, rayDir)), 2.0);
+
+                vec3 color = vec3(0.0);
+                float transmittance = 1.0; // Used for volumetric disk compositing
+
+                // --- RAYMARCHING THROUGH CURVED SPACETIME ---
+                for (int i = 0; i < STEPS; i++) {
+                    float r2 = dot(pos, pos);
+                    float r = sqrt(r2);
+
+                    // 1. Event Horizon Check
+                    if (r < BH_RS) {
+                        break; // Ray fell into the black hole
+                    }
+                    
+                    // 2. Escape Check
+                    if (r > 60.0) {
+                        color += starfield(rayDir) * transmittance;
+                        break; // Ray escaped to infinity
+                    }
+
+                    // 3. Adaptive Step Size
+                    // Smaller steps near the BH to resolve photon sphere and disk accurately
+                    float dt = clamp(0.05 * r, 0.02, 0.5);
+
+                    // 4. Gravitational Lensing (Schwarzschild Geodesic Approximation)
+                    // The light ray's acceleration is proportional to -1.5 * Rs * h^2 * r / r^5
+                    // This bends the ray towards the singularity.
+                    vec3 accel = -1.5 * BH_RS * h2 * pos / pow(r2, 2.5);
+                    rayDir += accel * dt;
+                    rayDir = normalize(rayDir); // Maintain speed of light
+
+                    vec3 nextPos = pos + rayDir * dt;
+
+                    // 5. Volumetric Accretion Disk Intersection
+                    // Check if we are within the disk's vertical bounds and radial bounds
+                    if (abs(pos.y) < DISK_THICKNESS && r > DISK_INNER && r < DISK_OUTER) {
+                        // Calculate orbital mechanics for the disk at this radius
+                        float orbitSpeed = sqrt(1.0 / r); // Keplerian-ish orbital speed
+                        float phi = atan(pos.z, pos.x);
+                        
+                        // Rotate over time to simulate continuous spin
+                        float animPhi = phi + uTime * orbitSpeed * 0.5;
+
+                        // Procedural Plasma Noise
+                        // We map the noise to polar coordinates so it swirls with the disk
+                        vec3 noisePos = vec3(cos(animPhi) * r, sin(animPhi) * r, uTime * 0.05);
+                        float n = fbm(noisePos * 1.5);
+                        n = pow(n, 1.5); // Sharpen contrast
+                        
+                        // High frequency detail
+                        float detail = fbm(noisePos * 5.0) * 0.2;
+                        n += detail;
+
+                        // Disk density profile
+                        float yFalloff = 1.0 - abs(pos.y) / DISK_THICKNESS;
+                        yFalloff = pow(yFalloff, 2.0); // Concentrate towards center plane
+
+                        float radialFalloff = smoothstep(DISK_INNER, DISK_INNER + 0.5, r) * (1.0 - smoothstep(DISK_OUTER - 3.0, DISK_OUTER, r));
+                        float density = n * yFalloff * radialFalloff * 0.4;
+
+                        if (density > 0.01) {
+                            // --- RELATIVISTIC DOPPLER BEAMING ---
+                            // Velocity vector (tangent to orbit). crossPos = (x,0,z) -> vel = (-z,0,x)
+                            vec3 vel = normalize(vec3(-pos.z, 0.0, pos.x)) * orbitSpeed;
+                            
+                            // beta = velocity dot direction_to_camera
+                            // rayDir is FROM camera TO disk. So direction to camera is -rayDir.
+                            float beta = dot(vel, -rayDir);
+                            
+                            // Relativistic Doppler Factor: D = sqrt(1 - b^2) / (1 - b * cos(theta))
+                            float doppler = sqrt(1.0 - orbitSpeed * orbitSpeed) / (1.0 - beta);
+
+                            // Color Shifts: blueshift for approaching, redshift for receding
+                            vec3 blueShift = vec3(0.4, 0.6, 1.0);
+                            vec3 redShift = vec3(1.0, 0.2, 0.1);
+                            vec3 shift = mix(redShift, blueShift, smoothstep(0.5, 2.5, doppler));
+
+                            // Base disk color (hot inner, cooler outer)
+                            vec3 baseCol = mix(vec3(1.0, 0.4, 0.1), vec3(1.0, 0.8, 0.5), n);
+                            baseCol = mix(baseCol, shift, 0.7); // Apply relativistic color shift
+
+                            // Relativistic Intensity Beaming: I ~ D^3 or D^4
+                            float intensity = pow(clamp(doppler, 0.2, 3.0), 3.0);
+                            
+                            // Inner edge glow (Einstein ring precursor)
+                            float innerGlow = smoothstep(DISK_INNER + 1.5, DISK_INNER, r) * 2.0;
+                            
+                            vec3 emission = baseCol * intensity * (3.0 + innerGlow);
+                            
+                            // Volumetric compositing (front-to-back accumulation)
+                            color += emission * density * transmittance;
+                            transmittance *= (1.0 - density);
+                        }
+                    }
+                    pos = nextPos;
+                }
+
+                // Fallback if loop finishes without escaping or falling in
+                if (transmittance > 0.0 && length(pos) > BH_RS) {
+                    color += starfield(rayDir) * transmittance;
+                }
+
+                // Faint background ambient light
+                color += vec3(0.005, 0.005, 0.01) * transmittance;
+
+                // Vignette for cinematic framing
+                vec2 uvVig = vUv - 0.5;
+                float vignette = 1.0 - dot(uvVig, uvVig) * 0.8;
+                color *= vignette;
+
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `;
+
+        // --- FULLSCREEN QUAD SETUP ---
+        const geometry = new THREE.PlaneGeometry(2, 2);
+        const material = new THREE.ShaderMaterial({
+            uniforms: uniforms,
+            vertexShader: vertexShader,
+            fragmentShader: fragmentShader
+        });
+        const quad = new THREE.Mesh(geometry, material);
+        scene.add(quad);
+
+        // --- ANIMATION LOOP ---
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const elapsed = clock.getElapsedTime();
+            uniforms.uTime.value = elapsed;
+
+            // Update camera matrices for the shader
+            controls.update();
+            camera.updateMatrixWorld();
+            
+            uniforms.uCameraPos.value.copy(camera.position);
+            uniforms.uCameraMat.value.copy(camera.matrixWorld);
+
+            // Render through the composer for bloom effects
+            composer.render();
+        }
+
+        // --- RESPONSIVE RESIZE HANDLING ---
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
+            uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+    </script>
 </body>
 </html>
-
